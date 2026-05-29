@@ -156,13 +156,17 @@ export default function App() {
 
   // 1. Fetch startup details
   useEffect(() => {
-    fetchProducts();
     fetchCategories();
     fetchCombos();
     if (token) {
       fetchCurrentUser();
     }
   }, [token]);
+
+  // Refetch products whenever selectedCategory changes
+  useEffect(() => {
+    fetchProducts();
+  }, [selectedCategory]);
 
   useEffect(() => {
     if (user) {
