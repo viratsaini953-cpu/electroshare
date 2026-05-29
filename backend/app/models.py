@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Date, Table
+from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Date, Table, Text
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -55,7 +55,7 @@ class Product(Base):
     listing_type = Column(String(50), default="sale")  # "sale", "rent", "both"
     rent_price_per_day = Column(Float, nullable=True)
     status = Column(String(50), default="available")  # "available", "pending_escrow", "sold", "rented"
-    image_url = Column(String(555), nullable=True)
+    image_url = Column(Text, nullable=True)
     amazon_url = Column(String(555), nullable=True)
     flipkart_url = Column(String(555), nullable=True)
     other_url = Column(String(555), nullable=True)

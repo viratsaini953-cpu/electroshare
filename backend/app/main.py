@@ -8,6 +8,7 @@ from app.routers import auth, products, orders, admin
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Create all tables on startup if they don't exist
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     
     # Seed default categories and admin user
