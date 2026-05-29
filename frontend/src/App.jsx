@@ -921,9 +921,9 @@ export default function App() {
               <button 
                 onClick={() => { setSelectedCategory(null); }}
                 className={`text-xs font-semibold px-4 py-2.5 rounded-xl whitespace-nowrap transition-all border ${
-                  selectedCategory === null 
+                  selectedCategory == null 
                     ? 'bg-brand-500 text-white border-brand-500 shadow-md shadow-brand-500/10' 
-                    : 'bg-dark-900 border-dark-800 text-dark-300 hover:border-dark-700 hover:text-white'
+                    : 'bg-dark-900 border-dark-800 text-dark-300 hover:border-dark-700 hover:text-brand-500'
                 }`}
               >
                 All Components
@@ -933,9 +933,9 @@ export default function App() {
                   key={cat.id}
                   onClick={() => { setSelectedCategory(cat.id); }}
                   className={`text-xs font-semibold px-4 py-2.5 rounded-xl whitespace-nowrap transition-all border ${
-                    selectedCategory === cat.id 
+                    selectedCategory == cat.id 
                       ? 'bg-brand-500 text-white border-brand-500 shadow-md shadow-brand-500/10' 
-                      : 'bg-dark-900 border-dark-800 text-dark-300 hover:border-dark-700 hover:text-white'
+                      : 'bg-dark-900 border-dark-800 text-dark-300 hover:border-dark-700 hover:text-brand-500'
                   }`}
                 >
                   {cat.name}
@@ -944,7 +944,7 @@ export default function App() {
             </div>
 
             {/* Catalog Grid */}
-            {products.length === 0 ? (
+            {products.filter(prod => !selectedCategory || prod.category?.id == selectedCategory).length === 0 ? (
               <div className="text-center py-16 bg-dark-900/20 border border-dark-800 rounded-3xl space-y-3">
                 <span className="text-3xl">🔌</span>
                 <h3 className="text-lg font-bold text-white">No hardware listings match your criteria</h3>
@@ -952,7 +952,7 @@ export default function App() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.map((prod) => (
+                {products.filter(prod => !selectedCategory || prod.category?.id == selectedCategory).map((prod) => (
                   <div 
                     key={prod.id}
                     onClick={() => setSelectedProduct(prod)}
