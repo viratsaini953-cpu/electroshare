@@ -1,4 +1,4 @@
-const API_BASE_URL = `http://${window.location.hostname}:8000/api/v1`;
+const API_BASE_URL = 'https://electroshare-backend.onrender.com/api/v1';
 
 export const apiRequest = async (endpoint, method = 'GET', body = null, token = null) => {
   const headers = {
