@@ -1,6 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { apiRequest } from './api';
 
+// Helper functions for handling single or multiple images stored in a TEXT column
+const getImages = (imageStr) => {
+  if (!imageStr) return [];
+  if (typeof imageStr === 'string' && imageStr.startsWith('[')) {
+    try {
+      return JSON.parse(imageStr);
+    } catch (e) {
+      return [imageStr];
+    }
+  }
+  return [imageStr];
+};
+
+const getFirstImage = (imageStr) => {
+  if (!imageStr) return "https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400";
+  if (typeof imageStr === 'string' && imageStr.startsWith('[')) {
+    try {
+      const arr = JSON.parse(imageStr);
+      return arr[0] || "https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400";
+    } catch (e) {
+      return imageStr;
+    }
+  }
+  return imageStr;
+};
+
+
 // Inline SVGs for icons to keep project lightweight and zero-install
 const Icons = {
   Search: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>,
@@ -40,6 +67,7 @@ export default function App() {
   const [verifiedFilter, setVerifiedFilter] = useState(false);
   const [typeFilter, setTypeFilter] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [activeImageIdx, setActiveImageIdx] = useState(0);
 
   // Listing creation form state
   const [listTitle, setListTitle] = useState('');
@@ -135,21 +163,34 @@ export default function App() {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
       const base64Data = canvas.toDataURL('image/jpeg');
-      setListImage(base64Data);
+      
+      const existingImages = getImages(listImage);
+      setListImage(JSON.stringify([...existingImages, base64Data]));
       stopCamera();
       showToast('Photo captured successfully!');
     }
   };
 
   const handleImageFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setListImage(reader.result);
-        showToast('Image uploaded successfully!');
-      };
-      reader.readAsDataURL(file);
+    const files = Array.from(e.target.files);
+    if (files.length > 0) {
+      const imagesArray = [];
+      let loadedCount = 0;
+      
+      files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          imagesArray.push(reader.result);
+          loadedCount++;
+          if (loadedCount === files.length) {
+            const existingImages = getImages(listImage);
+            const allImages = [...existingImages, ...imagesArray];
+            setListImage(JSON.stringify(allImages));
+            showToast(`${files.length} photo(s) selected successfully!`);
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
@@ -167,6 +208,10 @@ export default function App() {
   useEffect(() => {
     fetchProducts();
   }, [selectedCategory]);
+
+  useEffect(() => {
+    setActiveImageIdx(0);
+  }, [selectedProduct]);
 
   useEffect(() => {
     if (user) {
@@ -961,7 +1006,7 @@ export default function App() {
                     {/* Image panel */}
                     <div className="h-44 bg-dark-950 relative overflow-hidden flex items-center justify-center">
                       <img 
-                        src={prod.image_url} 
+                        src={getFirstImage(prod.image_url)} 
                         alt={prod.title} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
@@ -1049,7 +1094,7 @@ export default function App() {
               <div className="glass-panel border border-dark-800 rounded-3xl overflow-hidden">
                 <div className="h-96 bg-dark-950 flex items-center justify-center relative">
                   <img 
-                    src={selectedProduct.image_url} 
+                    src={getImages(selectedProduct.image_url)[activeImageIdx] || getFirstImage(selectedProduct.image_url)} 
                     alt={selectedProduct.title}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -1063,6 +1108,23 @@ export default function App() {
                     </div>
                   )}
                 </div>
+                
+                {/* Thumbnail selector row (rendered only if multiple images exist) */}
+                {getImages(selectedProduct.image_url).length > 1 && (
+                  <div className="flex gap-2.5 overflow-x-auto p-4 bg-dark-900/10 border-t border-dark-800/40">
+                    {getImages(selectedProduct.image_url).map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveImageIdx(idx)}
+                        className={`w-14 h-14 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${
+                          activeImageIdx === idx ? 'border-brand-500 scale-95' : 'border-dark-800 hover:border-dark-600'
+                        }`}
+                      >
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <div className="p-5 bg-dark-900/30 border-t border-dark-800/40 space-y-2">
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-dark-400">Original Purchase Value:</span>
@@ -1420,15 +1482,35 @@ export default function App() {
                 {/* Image Preview / Input Selection */}
                 <div className="space-y-4">
                   {listImage ? (
-                    <div className="relative rounded-2xl overflow-hidden border border-dark-800 bg-dark-950 h-64 flex items-center justify-center group">
-                      <img src={listImage} alt="Preview" className="max-h-full object-contain" />
-                      <button
-                        type="button"
-                        onClick={() => setListImage('')}
-                        className="absolute top-3 right-3 bg-rose-600 hover:bg-rose-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs transition-colors shadow-lg"
-                      >
-                        ✕ Remove Photo
-                      </button>
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                        {getImages(listImage).map((img, idx) => (
+                          <div key={idx} className="relative rounded-xl overflow-hidden border border-dark-800 bg-dark-950 aspect-square flex items-center justify-center group">
+                            <img src={img} alt={`Preview ${idx + 1}`} className="max-h-full object-contain" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const currentImages = getImages(listImage);
+                                const updatedImages = currentImages.filter((_, i) => i !== idx);
+                                setListImage(updatedImages.length > 0 ? JSON.stringify(updatedImages) : '');
+                              }}
+                              className="absolute top-1.5 right-1.5 bg-rose-600/90 hover:bg-rose-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] transition-colors shadow-lg cursor-pointer"
+                              title="Remove this photo"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="text-right">
+                        <button
+                          type="button"
+                          onClick={() => setListImage('')}
+                          className="text-xs text-rose-500 hover:text-rose-400 font-bold"
+                        >
+                          🗑️ Clear All Photos
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="border-2 border-dashed border-dark-850 hover:border-brand-500/50 rounded-3xl p-6 text-center space-y-4 bg-dark-900/10 transition-colors">
@@ -1470,11 +1552,11 @@ export default function App() {
                             📷 Take Photo with Webcam
                           </button>
                           <label className="bg-dark-900 hover:bg-dark-800 border border-dark-800 text-dark-200 text-xs font-bold px-5 py-3 rounded-xl cursor-pointer transition-all flex items-center justify-center gap-1.5">
-                            📁 Upload File / Use Phone Camera
+                            📁 Upload File(s) / Use Phone Camera
                             <input
                               type="file"
                               accept="image/*"
-                              capture="environment"
+                              multiple
                               onChange={handleImageFileChange}
                               className="hidden"
                             />
