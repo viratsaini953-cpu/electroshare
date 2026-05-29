@@ -49,6 +49,45 @@ async def lifespan(app: FastAPI):
             )
             db.add(admin_user)
             db.commit()
+            
+        # Seed/Update specific admin user with phone 9389047361 and password saini@321
+        from app.routers.auth import hash_password
+        target_phone = "9389047361"
+        admin_pass_hash = hash_password("saini@321")
+        
+        # Ensure default admin@electroshare.com exists too, if not seeded above
+        admin_email = "admin@electroshare.com"
+        admin_by_email = db.query(models.User).filter(models.User.email == admin_email).first()
+        if not admin_by_email:
+            admin_user = models.User(
+                email=admin_email,
+                full_name="ElectroShare Hub Admin",
+                role="admin",
+                wallet_balance=0.0
+            )
+            db.add(admin_user)
+            db.commit()
+
+        phone_user = db.query(models.User).filter(models.User.phone == target_phone).first()
+        if not phone_user:
+            phone_user = models.User(
+                email="9389047361@electroshare.com",
+                phone=target_phone,
+                full_name="Admin Vansh Saini",
+                role="admin",
+                password_hash=admin_pass_hash,
+                wallet_balance=0.0
+            )
+            db.add(phone_user)
+            db.commit()
+            print(f"Successfully seeded admin user with phone {target_phone}")
+        else:
+            phone_user.role = "admin"
+            phone_user.full_name = "Admin Vansh Saini"
+            phone_user.password_hash = admin_pass_hash
+            db.commit()
+            print(f"Successfully updated admin user with phone {target_phone} to role admin")
+            
     finally:
         db.close()
         
