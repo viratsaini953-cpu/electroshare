@@ -17,6 +17,11 @@ def get_all_orders(
     for o in orders:
         o.product_title = o.product.title
         o.seller_name = o.product.seller.full_name
+        o.seller_phone = o.product.seller.phone
+        o.seller_email = o.product.seller.email
+        o.buyer_name = o.buyer.full_name
+        o.buyer_phone = o.buyer.phone
+        o.buyer_email = o.buyer.email
     return orders
 
 @router.post("/orders/{id}/update-status", response_model=schemas.OrderResponse)

@@ -131,9 +131,14 @@ class RentalResponse(BaseModel):
 class OrderResponse(BaseModel):
     id: str
     buyer_id: str
+    buyer_name: Optional[str] = None
+    buyer_phone: Optional[str] = None
+    buyer_email: Optional[str] = None
     product_id: str
     product_title: Optional[str] = None
     seller_name: Optional[str] = None
+    seller_phone: Optional[str] = None
+    seller_email: Optional[str] = None
     order_type: str
     total_amount: float
     payment_status: str

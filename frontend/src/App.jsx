@@ -100,7 +100,7 @@ export default function App() {
   const [checkoutType, setCheckoutType] = useState('buy'); // 'buy' or 'rent'
   const [checkoutDelivery, setCheckoutDelivery] = useState('hub_pickup'); // 'hub_pickup' or 'p2p'
   const [checkoutHub, setCheckoutHub] = useState('Campus Engineering Hub');
-  const [checkoutPaymentMethod, setCheckoutPaymentMethod] = useState('upi'); // 'upi', 'card', 'cod'
+  const [checkoutPaymentMethod, setCheckoutPaymentMethod] = useState('cod'); // only 'cod'
   
   // Payment simulator state
   const [paymentSimulating, setPaymentSimulating] = useState(false);
@@ -1781,7 +1781,23 @@ export default function App() {
                           <div>
                             <span className="text-[10px] bg-dark-950 border border-dark-850 px-2 py-0.5 rounded text-dark-300 font-semibold">{ord.id.substring(0,8)}...</span>
                             <h4 className="font-bold text-white text-sm mt-2">{ord.product_title}</h4>
-                            <p className="text-xs text-dark-400">Buyer: {ord.buyer_id.substring(0,8)}... | Seller: {ord.seller_name}</p>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3 pt-3 border-t border-dark-850">
+                              {/* Buyer details card */}
+                              <div className="bg-dark-950 p-3 rounded-xl border border-dark-800/80 space-y-1">
+                                <span className="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Buyer</span>
+                                <h5 className="font-bold text-white text-xs mt-1">{ord.buyer_name || 'Anonymous User'}</h5>
+                                <p className="text-[11px] text-dark-300">📞 Call: <a href={`tel:${ord.buyer_phone}`} className="text-brand-400 font-bold hover:underline">{ord.buyer_phone || 'No Phone'}</a></p>
+                                <p className="text-[10px] text-dark-400 truncate">📧 Email: {ord.buyer_email || 'No Email'}</p>
+                              </div>
+
+                              {/* Seller details card */}
+                              <div className="bg-dark-950 p-3 rounded-xl border border-dark-800/80 space-y-1">
+                                <span className="text-[9px] bg-brand-500/10 text-brand-400 border border-brand-500/20 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Seller</span>
+                                <h5 className="font-bold text-white text-xs mt-1">{ord.seller_name || 'Anonymous Seller'}</h5>
+                                <p className="text-[11px] text-dark-300">📞 Call: <a href={`tel:${ord.seller_phone}`} className="text-brand-400 font-bold hover:underline">{ord.seller_phone || 'No Phone'}</a></p>
+                                <p className="text-[10px] text-dark-400 truncate">📧 Email: {ord.seller_email || 'No Email'}</p>
+                              </div>
+                            </div>
                           </div>
                           <span className="text-xs font-bold text-brand-400 capitalize bg-dark-950 px-2.5 py-1 rounded border border-dark-800">
                             {ord.order_status.replace(/_/g, ' ')}
@@ -2001,40 +2017,15 @@ export default function App() {
               {/* Payment Method Selection */}
               <div className="space-y-2">
                 <label className="text-xs text-dark-400 font-semibold block">Select Payment Option</label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button 
-                    type="button"
-                    onClick={() => setCheckoutPaymentMethod('upi')}
-                    className={`p-2.5 rounded-xl border text-[11px] text-center transition-all ${
-                      checkoutPaymentMethod === 'upi' 
-                        ? 'border-brand-500 bg-brand-500/5 text-white font-bold' 
-                        : 'border-dark-800 bg-dark-900/35 text-dark-400'
-                    }`}
-                  >
-                    📱 UPI App
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={() => setCheckoutPaymentMethod('card')}
-                    className={`p-2.5 rounded-xl border text-[11px] text-center transition-all ${
-                      checkoutPaymentMethod === 'card' 
-                        ? 'border-brand-500 bg-brand-500/5 text-white font-bold' 
-                        : 'border-dark-800 bg-dark-900/35 text-dark-400'
-                    }`}
-                  >
-                    💳 Card Pay
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={() => setCheckoutPaymentMethod('cod')}
-                    className={`p-2.5 rounded-xl border text-[11px] text-center transition-all ${
-                      checkoutPaymentMethod === 'cod' 
-                        ? 'border-brand-500 bg-brand-500/5 text-white font-bold' 
-                        : 'border-dark-800 bg-dark-900/35 text-dark-400'
-                    }`}
-                  >
-                    💵 Cash on Del
-                  </button>
+                <div className="bg-dark-900 border border-dark-800 rounded-xl p-3.5 flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl">💵</span>
+                    <div className="text-left">
+                      <span className="text-xs font-bold text-white block">Cash on Delivery / Pay at Hub</span>
+                      <span className="text-[10px] text-dark-400">Pay cash when dropping/picking up at the Hub</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] bg-brand-500/10 border border-brand-500/30 text-brand-400 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">COD Only</span>
                 </div>
               </div>
 
