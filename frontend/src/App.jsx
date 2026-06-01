@@ -452,18 +452,7 @@ export default function App() {
       return;
     }
     
-    if (type === 'rent') {
-      if (!rentalStart || !rentalEnd) {
-        showToast('Please select dates to book', 'error');
-        return;
-      }
-      if (new Date(rentalEnd) < new Date(rentalStart)) {
-        showToast('End date must be after Start date', 'error');
-        return;
-      }
-    }
-    
-    setCheckoutType(type);
+    setCheckoutType('buy');
     setCheckoutOpen(true);
   };
 
@@ -472,16 +461,13 @@ export default function App() {
     setPaymentSimulating(true);
     setPaymentStep('processing');
     
-    const startD = checkoutType === 'rent' ? rentalStart : null;
-    const endD = checkoutType === 'rent' ? rentalEnd : null;
-
     const orderBody = {
       product_id: selectedProduct.id,
-      order_type: checkoutType,
+      order_type: 'buy',
       delivery_type: checkoutDelivery,
       hub_location: checkoutDelivery === 'hub_pickup' ? checkoutHub : null,
-      start_date: startD,
-      end_date: endD,
+      start_date: null,
+      end_date: null,
       payment_method: checkoutPaymentMethod
     };
 
@@ -758,7 +744,7 @@ export default function App() {
                 onClick={() => { setActiveTab('list-product'); setSelectedProduct(null); }}
                 className={`text-sm font-medium transition-colors ${activeTab === 'list-product' ? 'text-brand-500' : 'text-dark-300 hover:text-white'}`}
               >
-                Sell/Rent Component
+                Sell Component
               </button>
             )}
             {user?.role === 'admin' && (
@@ -819,7 +805,7 @@ export default function App() {
                   Stop Buying Brand-New Hardware at Full Price.
                 </h2>
                 <p className="text-dark-300 text-sm md:text-base leading-relaxed">
-                  Rent sensors, sell your unused Arduino controllers, or buy pre-assembled robotics components. Safely escrowed on campus.
+                  Sell your unused Arduino controllers, or buy pre-assembled robotics components. Safely escrowed on campus.
                 </p>
                 <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                   <button 
@@ -829,7 +815,7 @@ export default function App() {
                     }}
                     className="bg-brand-500 hover:bg-brand-600 text-white font-medium text-sm px-6 py-2.5 rounded-xl transition-all shadow-md shadow-brand-500/10 hover:shadow-brand-500/20"
                   >
-                    Start Selling / Renting
+                    Start Selling
                   </button>
                   <button 
                     onClick={() => { setSelectedCategory(null); fetchProducts(); }}
@@ -893,16 +879,7 @@ export default function App() {
                   <option value="heavily_used">Heavily Used</option>
                 </select>
 
-                <select 
-                  value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value)}
-                  className="bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-xs text-dark-300 outline-none focus:border-brand-500 transition-colors"
-                >
-                  <option value="">Buy or Rent</option>
-                  <option value="sale">For Sale only</option>
-                  <option value="rent">For Rent only</option>
-                  <option value="both">Sale or Rent</option>
-                </select>
+
 
                 <label className="flex items-center gap-2 cursor-pointer select-none border border-dark-800 bg-dark-900/40 rounded-xl px-3 py-2 text-xs text-dark-300 hover:bg-dark-800/40 transition-colors">
                   <input 
@@ -992,15 +969,7 @@ export default function App() {
                       
                       {/* Price Banner */}
                       <div className="absolute bottom-2.5 left-2.5 bg-dark-950/85 backdrop-blur-md px-2.5 py-1 rounded-lg border border-dark-800 flex flex-col">
-                        {prod.listing_type !== 'rent' && (
-                          <span className="text-sm font-extrabold text-brand-400">₹{prod.price}</span>
-                        )}
-                        {prod.listing_type === 'rent' && (
-                          <span className="text-[10px] font-bold text-indigo-300">₹{prod.rent_price_per_day}/day (Rent)</span>
-                        )}
-                        {prod.listing_type === 'both' && (
-                          <span className="text-[9px] font-medium text-emerald-300">₹{prod.price} / ₹{prod.rent_price_per_day}d</span>
-                        )}
+                        <span className="text-sm font-extrabold text-brand-400">₹{prod.price}</span>
                       </div>
 
                       {/* Verification Status Badge */}
@@ -1138,62 +1107,18 @@ export default function App() {
                 </div>
 
                 {/* Buy Options Card */}
-                {selectedProduct.listing_type !== 'rent' && (
-                  <div className="bg-dark-900 border border-dark-800 rounded-2xl p-5 flex items-center justify-between">
-                    <div>
-                      <span className="text-xs text-dark-400 font-medium">Buy component outright</span>
-                      <h3 className="text-2xl font-black text-white mt-0.5">₹{selectedProduct.price}</h3>
-                    </div>
-                    <button 
-                      onClick={() => handleOrderInitiation('buy')}
-                      className="bg-brand-500 hover:bg-brand-600 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-brand-500/10 glow-btn"
-                    >
-                      Buy Now
-                    </button>
+                <div className="bg-dark-900 border border-dark-800 rounded-2xl p-5 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs text-dark-400 font-medium">Buy component outright</span>
+                    <h3 className="text-2xl font-black text-white mt-0.5">₹{selectedProduct.price}</h3>
                   </div>
-                )}
-
-                {/* Rent Options Card */}
-                {selectedProduct.listing_type !== 'sale' && (
-                  <div className="bg-dark-900 border border-dark-850 rounded-2xl p-5 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-xs text-dark-400 font-medium">Rent component per day</span>
-                        <h3 className="text-xl font-black text-indigo-400">₹{selectedProduct.rent_price_per_day}/day</h3>
-                      </div>
-                      <button 
-                        onClick={() => handleOrderInitiation('rent')}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/10"
-                      >
-                        Book Rental
-                      </button>
-                    </div>
-
-                    {/* Date select block */}
-                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-dark-850">
-                      <div>
-                        <label className="text-[10px] text-dark-400 font-semibold block mb-1">Start Date</label>
-                        <input 
-                          type="date"
-                          value={rentalStart}
-                          min={new Date().toISOString().split('T')[0]}
-                          onChange={(e) => setRentalStart(e.target.value)}
-                          className="w-full bg-dark-950 border border-dark-800 focus:border-indigo-500 text-xs rounded-lg p-2 text-white outline-none"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[10px] text-dark-400 font-semibold block mb-1">End Date</label>
-                        <input 
-                          type="date"
-                          value={rentalEnd}
-                          min={rentalStart || new Date().toISOString().split('T')[0]}
-                          onChange={(e) => setRentalEnd(e.target.value)}
-                          className="w-full bg-dark-950 border border-dark-800 focus:border-indigo-500 text-xs rounded-lg p-2 text-white outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
+                  <button 
+                    onClick={() => handleOrderInitiation('buy')}
+                    className="bg-brand-500 hover:bg-brand-600 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-brand-500/10 glow-btn"
+                  >
+                    Buy Now
+                  </button>
+                </div>
 
                 {/* Admin Delete Action */}
                 {user?.role === 'admin' && (
@@ -1342,7 +1267,7 @@ export default function App() {
               </div>
 
               {/* Price Suggestion input cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-dark-950/50 p-4 rounded-2xl border border-dark-850">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-dark-950/50 p-4 rounded-2xl border border-dark-850">
                 <div>
                   <label className="text-xs text-dark-400 font-semibold block mb-1.5">Original Price (Market ₹)</label>
                   <input 
@@ -1363,20 +1288,6 @@ export default function App() {
                     placeholder="Months since purchase"
                     className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-2.5 text-xs outline-none focus:border-brand-500 transition-colors"
                   />
-                </div>
-
-                {/* Listing Type option */}
-                <div>
-                  <label className="text-xs text-dark-400 font-semibold block mb-1.5">Offer Type</label>
-                  <select 
-                    value={listType}
-                    onChange={(e) => setListType(e.target.value)}
-                    className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-2.5 text-xs outline-none focus:border-brand-500 transition-colors"
-                  >
-                    <option value="sale">Outright Sale Only</option>
-                    <option value="rent">Rental Only</option>
-                    <option value="both">Both Sale and Rental</option>
-                  </select>
                 </div>
               </div>
 
@@ -1399,7 +1310,6 @@ export default function App() {
                     type="button"
                     onClick={() => {
                       setListPrice(pricingSuggestion.recommended_price);
-                      setListRentPrice(Math.round(pricingSuggestion.recommended_price * 0.08)); // Rent estimate 8% of suggested price
                     }}
                     className="text-[10px] font-bold text-brand-400 border border-brand-500/30 hover:bg-brand-500/25 rounded-lg px-2.5 py-1 transition-all"
                   >
@@ -1409,33 +1319,16 @@ export default function App() {
               )}
 
               {/* Final Selling Prices */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {listType !== 'rent' && (
-                  <div>
-                    <label className="text-xs text-dark-400 font-semibold block mb-1.5">Your Selling Price (₹)</label>
-                    <input 
-                      type="number"
-                      required
-                      value={listPrice}
-                      onChange={(e) => setListPrice(e.target.value)}
-                      placeholder="e.g. 250"
-                      className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3 text-sm outline-none focus:border-brand-500 transition-colors"
-                    />
-                  </div>
-                )}
-                {listType !== 'sale' && (
-                  <div>
-                    <label className="text-xs text-indigo-300 font-semibold block mb-1.5">Daily Rental Rate (₹/day)</label>
-                    <input 
-                      type="number"
-                      required
-                      value={listRentPrice}
-                      onChange={(e) => setListRentPrice(e.target.value)}
-                      placeholder="e.g. 20"
-                      className="w-full bg-dark-900 border border-dark-800 text-indigo-300 rounded-xl p-3 text-sm outline-none focus:border-indigo-500 transition-colors"
-                    />
-                  </div>
-                )}
+              <div>
+                <label className="text-xs text-dark-400 font-semibold block mb-1.5">Your Selling Price (₹)</label>
+                <input 
+                  type="number"
+                  required
+                  value={listPrice}
+                  onChange={(e) => setListPrice(e.target.value)}
+                  placeholder="e.g. 250"
+                  className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3 text-sm outline-none focus:border-brand-500 transition-colors"
+                />
               </div>
 
               <div>
@@ -1585,10 +1478,10 @@ export default function App() {
               
               {/* Purchases Table */}
               <div className="space-y-4">
-                <h4 className="text-xs font-bold text-brand-400 uppercase tracking-wider">My Purchases / Rentals</h4>
+                <h4 className="text-xs font-bold text-brand-400 uppercase tracking-wider">My Purchases</h4>
                 
                 {myPurchases.length === 0 ? (
-                  <p className="text-xs text-dark-400 bg-dark-900/20 border border-dark-800 p-4 rounded-xl">You have not bought or rented any components yet.</p>
+                  <p className="text-xs text-dark-400 bg-dark-900/20 border border-dark-800 p-4 rounded-xl">You have not bought any components yet.</p>
                 ) : (
                   <div className="space-y-4">
                     {myPurchases.map((ord) => (
@@ -1596,7 +1489,7 @@ export default function App() {
                         <div className="flex items-start justify-between">
                           <div>
                             <span className="text-[10px] bg-dark-950 border border-dark-850 px-2.5 py-0.5 rounded text-dark-300 capitalize font-medium">
-                              {ord.order_type === 'rent' ? 'Rental Booking' : 'Outright Purchase'}
+                              Outright Purchase
                             </span>
                             <h4 className="font-bold text-white text-sm mt-2">{ord.product_title}</h4>
                             <p className="text-xs text-dark-400 mt-0.5">Seller: {ord.seller_name}</p>
@@ -1906,22 +1799,10 @@ export default function App() {
                 </div>
                 <div className="text-right">
                   <span className="font-extrabold text-brand-400">
-                    ₹{checkoutType === 'rent' ? `${selectedProduct.rent_price_per_day}/day` : selectedProduct.price}
+                    ₹{selectedProduct.price}
                   </span>
                 </div>
               </div>
-
-              {checkoutType === 'rent' && (
-                <div className="bg-indigo-500/5 border border-indigo-500/20 p-3 rounded-xl text-xs space-y-1">
-                  <span className="font-bold text-indigo-300 block">Rental Duration Details:</span>
-                  <div className="text-dark-300">
-                    <span>From: {rentalStart} To: {rentalEnd}</span>
-                    <span className="block mt-1 font-semibold text-white">
-                      Total Days: {((new Date(rentalEnd) - new Date(rentalStart)) / (1000 * 60 * 60 * 24)) + 1}
-                    </span>
-                  </div>
-                </div>
-              )}
 
               {/* Delivery method toggle */}
               <div className="space-y-2">
