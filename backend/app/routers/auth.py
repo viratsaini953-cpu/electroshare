@@ -52,9 +52,33 @@ def send_real_sms(phone: str, otp: str):
                 print(f"SMS successfully dispatched via Twilio to {to_number}")
                 return True
             else:
-                print(f"Twilio failed with status {res.status_code}: {res.text}")
+                print(f"Twilio SMS failed with status {res.status_code}: {res.text}")
         except Exception as e:
-            print(f"Twilio error: {e}")
+            print(f"Twilio SMS error: {e}")
+            
+    # 3. Try Twilio WhatsApp API
+    if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
+        try:
+            url = f"https://api.twilio.com/2010-04-01/Accounts/{settings.TWILIO_ACCOUNT_SID}/Messages.json"
+            auth = (settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+            
+            to_number = f"whatsapp:+91{phone}" if not phone.startswith("+") and not phone.startswith("whatsapp:") else (phone if phone.startswith("whatsapp:") else f"whatsapp:{phone}")
+            from_val = settings.TWILIO_FROM_NUMBER or "+14155238886"
+            from_number = f"whatsapp:{from_val}" if not from_val.startswith("whatsapp:") else from_val
+            
+            payload = {
+                "To": to_number,
+                "From": from_number,
+                "Body": f"Your ElectroShare verification code is: {otp}"
+            }
+            res = httpx.post(url, data=payload, auth=auth, timeout=5.0)
+            if res.status_code in [200, 201]:
+                print(f"WhatsApp OTP successfully dispatched via Twilio to {to_number}")
+                return True
+            else:
+                print(f"Twilio WhatsApp failed with status {res.status_code}: {res.text}")
+        except Exception as e:
+            print(f"Twilio WhatsApp error: {e}")
             
     return False
 
