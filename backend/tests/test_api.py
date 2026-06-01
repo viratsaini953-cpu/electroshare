@@ -204,3 +204,34 @@ def test_admin_delete_product(client):
     ids = [p["id"] for p in prod_get.json()]
     assert product_id not in ids
 
+def test_admin_delete_combo(client):
+    # Setup login header for admin
+    admin_login = client.post("/api/v1/auth/login", json={"phone": "admin@electroshare.com", "password": "adminpassword"})
+    admin_token = admin_login.json()["access_token"]
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
+    
+    # Create combo kit using admin
+    combo_data = {
+        "title": "Combo to Delete",
+        "description": "Wrong combo kit",
+        "price": 250.0,
+        "product_ids": [],
+        "image_url": "http://example.com/combo.jpg",
+        "components": "Arduino, Jumper cables"
+    }
+    combo_res = client.post("/api/v1/admin/combos/create", json=combo_data, headers=admin_headers)
+    assert combo_res.status_code == 200
+    combo_id = combo_res.json()["id"]
+    
+    # Delete combo kit using admin
+    del_res = client.delete(f"/api/v1/admin/combos/{combo_id}", headers=admin_headers)
+    assert del_res.status_code == 200
+    assert del_res.json()["message"] == "Combo kit deleted successfully"
+    
+    # Verify it is deleted from list
+    get_res = client.get("/api/v1/admin/combos", headers=admin_headers)
+    assert get_res.status_code == 200
+    combo_ids = [c["id"] for c in get_res.json()]
+    assert combo_id not in combo_ids
+
+

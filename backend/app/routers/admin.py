@@ -156,3 +156,24 @@ def delete_product(
     db.delete(product)
     db.commit()
     return {"message": "Product listing deleted successfully"}
+
+@router.delete("/combos/{id}", status_code=status.HTTP_200_OK)
+def delete_combo(
+    id: str,
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_current_admin)
+):
+    combo = db.query(models.Combo).filter(models.Combo.id == id).first()
+    if not combo:
+        raise HTTPException(status_code=404, detail="Combo kit not found")
+        
+    db.execute(
+        models.combo_items.delete().where(
+            models.combo_items.c.combo_id == id
+        )
+    )
+    
+    db.delete(combo)
+    db.commit()
+    return {"message": "Combo kit deleted successfully"}
+

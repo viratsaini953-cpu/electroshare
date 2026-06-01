@@ -469,6 +469,17 @@ export default function App() {
     }
   };
 
+  const handleDeleteCombo = async (comboId) => {
+    if (!window.confirm("Are you sure you want to permanently delete this combo kit?")) return;
+    try {
+      await apiRequest(`/admin/combos/${comboId}`, 'DELETE');
+      showToast('Combo kit deleted successfully!');
+      fetchCombos();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
   // 5. Checkout and payment flow
   const handleOrderInitiation = (type) => {
     if (!user) {
@@ -1214,7 +1225,19 @@ export default function App() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {combos.map((combo) => (
-                  <div key={combo.id} className="glass-panel border border-dark-800 rounded-3xl p-6 space-y-4 flex flex-col justify-between">
+                  <div key={combo.id} className="relative glass-panel border border-dark-800 rounded-3xl p-6 space-y-4 flex flex-col justify-between">
+                    {user?.role === 'admin' && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCombo(combo.id);
+                        }}
+                        className="absolute top-4 right-4 bg-red-650 hover:bg-red-750 text-white border border-red-500 text-[10px] font-bold px-2.5 py-1.5 rounded-lg z-20 flex items-center gap-1 transition-all duration-150 cursor-pointer shadow-md"
+                        title="Delete Combo Kit"
+                      >
+                        🗑️ Delete Combo
+                      </button>
+                    )}
                     <div className="space-y-3">
                       {combo.image_url ? (
                         <div className="h-44 w-full rounded-2xl overflow-hidden border border-dark-800 relative bg-dark-950">
