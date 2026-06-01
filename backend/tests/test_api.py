@@ -61,6 +61,10 @@ def test_auth_validation(client):
     assert "10-digit" in response.json()["detail"]
 
 def test_auth_login(client):
+    # Send and verify OTP using master key first
+    client.post("/api/v1/auth/send-otp", json={"target": "9999999999"})
+    client.post("/api/v1/auth/verify-otp", json={"target": "9999999999", "otp": "123456"})
+    
     # Registering a new phone user
     response = client.post("/api/v1/auth/register", json={"phone": "9999999999", "password": "password123"})
     assert response.status_code == 200
@@ -104,10 +108,16 @@ def test_end_to_end_transaction(client):
     admin_token = admin_login.json()["access_token"]
     admin_headers = {"Authorization": f"Bearer {admin_token}"}
     
+    # Verify OTP for seller
+    client.post("/api/v1/auth/send-otp", json={"target": "9876543210"})
+    client.post("/api/v1/auth/verify-otp", json={"target": "9876543210", "otp": "123456"})
     seller_reg = client.post("/api/v1/auth/register", json={"phone": "9876543210", "password": "sellerpassword"})
     seller_token = seller_reg.json()["access_token"]
     seller_headers = {"Authorization": f"Bearer {seller_token}"}
     
+    # Verify OTP for buyer
+    client.post("/api/v1/auth/send-otp", json={"target": "9876543211"})
+    client.post("/api/v1/auth/verify-otp", json={"target": "9876543211", "otp": "123456"})
     buyer_reg = client.post("/api/v1/auth/register", json={"phone": "9876543211", "password": "buyerpassword"})
     buyer_token = buyer_reg.json()["access_token"]
     buyer_headers = {"Authorization": f"Bearer {buyer_token}"}

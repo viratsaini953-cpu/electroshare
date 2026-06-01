@@ -65,6 +65,9 @@ export default function App() {
   const [isPhoneChecked, setIsPhoneChecked] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
   const [authMsg, setAuthMsg] = useState('');
+  const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpCountdown, setOtpCountdown] = useState(0);
 
   // Catalog State
   const [products, setProducts] = useState([]);
@@ -252,6 +255,13 @@ export default function App() {
     }
   }, [listMarketPrice, listCondition, listAge]);
 
+  useEffect(() => {
+    if (otpCountdown > 0) {
+      const timer = setTimeout(() => setOtpCountdown(otpCountdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [otpCountdown]);
+
   const fetchCurrentUser = async () => {
     try {
       const data = await apiRequest('/auth/me', 'GET', null, token);
@@ -341,6 +351,48 @@ export default function App() {
       const res = await apiRequest('/auth/check-phone', 'POST', { phone: authTarget });
       setIsRegistered(res.registered);
       setIsPhoneChecked(true);
+      setIsPhoneVerified(false);
+      
+      // Auto-trigger OTP if it's a mobile number (doesn't contain '@') and NOT registered
+      if (!res.registered && !authTarget.includes('@')) {
+        await handleSendOtp();
+      }
+    } catch (err) {
+      setAuthMsg(err.message);
+    }
+  };
+
+  const handleSendOtp = async () => {
+    setAuthMsg('');
+    try {
+      await apiRequest('/auth/send-otp', 'POST', { target: authTarget });
+      setOtpCountdown(60);
+      showToast('Verification OTP code sent by SMS!');
+    } catch (err) {
+      setAuthMsg(err.message);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setAuthMsg('');
+    try {
+      const res = await apiRequest('/auth/verify-otp', 'POST', {
+        target: authTarget,
+        otp: otpCode
+      });
+      if (res.access_token === 'pending_registration') {
+        setIsPhoneVerified(true);
+        showToast('Phone number verified! Please set your password.');
+      } else {
+        localStorage.setItem('token', res.access_token);
+        setToken(res.access_token);
+        setOtpCode('');
+        setAuthTarget('');
+        setIsPhoneChecked(false);
+        setIsPhoneVerified(false);
+        showToast('Verification successful. Welcome back!');
+      }
     } catch (err) {
       setAuthMsg(err.message);
     }
@@ -668,46 +720,92 @@ export default function App() {
               </div>
 
               {!isRegistered ? (
-                /* Register Flow (Set Password) */
-                <form onSubmit={handleRegister} className="space-y-4">
-                  <div className="text-center p-3 bg-brand-500/5 border border-brand-500/15 rounded-xl">
-                    <span className="text-xs text-brand-300 font-semibold block">🆕 First-time logging in?</span>
-                    <span className="text-[10px] text-dark-400 block mt-0.5">Please set a secure password for your account.</span>
-                  </div>
+                !isPhoneVerified && !authTarget.includes('@') ? (
+                  /* Verify OTP Form */
+                  <form onSubmit={handleVerifyOtp} className="space-y-4">
+                    <div className="text-center p-3 bg-brand-500/5 border border-brand-500/15 rounded-xl">
+                      <span className="text-xs text-brand-300 font-semibold block">📱 Verify Mobile Number</span>
+                      <span className="text-[10px] text-dark-400 block mt-0.5">We sent a 6-digit verification code to your phone.</span>
+                    </div>
 
-                  <div>
-                    <label className="text-xs text-dark-300 font-semibold block mb-1.5">Set Password</label>
-                    <input 
-                      type="password"
-                      required
-                      minLength="6"
-                      value={authPassword}
-                      onChange={(e) => setAuthPassword(e.target.value)}
-                      placeholder="At least 6 characters"
-                      className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
-                    />
-                  </div>
+                    <div>
+                      <label className="text-xs text-dark-300 font-semibold block mb-1.5">Verification Code (OTP)</label>
+                      <input 
+                        type="text"
+                        required
+                        maxLength={6}
+                        pattern="\d{6}"
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value)}
+                        placeholder="Enter 6-digit OTP code"
+                        className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors text-center font-mono font-bold tracking-widest text-lg"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="text-xs text-dark-300 font-semibold block mb-1.5">Confirm Password</label>
-                    <input 
-                      type="password"
-                      required
-                      minLength="6"
-                      value={authConfirmPassword}
-                      onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                      placeholder="Repeat your password"
-                      className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
-                    />
-                  </div>
+                    <div className="flex items-center justify-between text-xs pt-1">
+                      <span className="text-dark-500">Didn't receive code?</span>
+                      {otpCountdown > 0 ? (
+                        <span className="text-dark-400 font-semibold">Resend in {otpCountdown}s</span>
+                      ) : (
+                        <button 
+                          type="button" 
+                          onClick={handleSendOtp}
+                          className="text-brand-400 hover:text-brand-300 font-bold underline cursor-pointer"
+                        >
+                          Resend OTP
+                        </button>
+                      )}
+                    </div>
 
-                  <button 
-                    type="submit"
-                    className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer glow-btn"
-                  >
-                    Set Password & Sign In
-                  </button>
-                </form>
+                    <button 
+                      type="submit"
+                      className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer flex items-center justify-center gap-2 glow-btn"
+                    >
+                      Verify Code & Continue ➜
+                    </button>
+                  </form>
+                ) : (
+                  /* Register Flow (Set Password) */
+                  <form onSubmit={handleRegister} className="space-y-4">
+                    <div className="text-center p-3 bg-brand-500/5 border border-brand-500/15 rounded-xl">
+                      <span className="text-xs text-brand-300 font-semibold block">🆕 Phone Verified Successfully!</span>
+                      <span className="text-[10px] text-dark-400 block mt-0.5">Please set a secure password for your account.</span>
+                    </div>
+
+                    <div>
+                      <label className="text-xs text-dark-300 font-semibold block mb-1.5">Set Password</label>
+                      <input 
+                        type="password"
+                        required
+                        minLength="6"
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        placeholder="At least 6 characters"
+                        className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs text-dark-300 font-semibold block mb-1.5">Confirm Password</label>
+                      <input 
+                        type="password"
+                        required
+                        minLength="6"
+                        value={authConfirmPassword}
+                        onChange={(e) => setAuthConfirmPassword(e.target.value)}
+                        placeholder="Repeat your password"
+                        className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
+                      />
+                    </div>
+
+                    <button 
+                      type="submit"
+                      className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer glow-btn"
+                    >
+                      Set Password & Sign In
+                    </button>
+                  </form>
+                )
               ) : (
                 /* Login Flow */
                 <form onSubmit={handleLogin} className="space-y-4">

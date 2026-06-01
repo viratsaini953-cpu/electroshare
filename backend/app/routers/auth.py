@@ -23,8 +23,8 @@ def send_real_sms(phone: str, otp: str):
                 "Content-Type": "application/json"
             }
             payload = {
-                "route": "q",
-                "message": f"ElectroShare Verification Code: {otp}. Valid for 5 minutes.",
+                "route": "otp",
+                "variables_values": otp,
                 "numbers": phone
             }
             res = httpx.post(url, json=payload, headers=headers, timeout=5.0)
@@ -93,6 +93,19 @@ def register_user(payload: schemas.RegisterRequest, db: Session = Depends(get_db
     if len(password) < 6:
         raise HTTPException(status_code=400, detail="Password must be at least 6 characters long")
         
+    # Check if OTP is verified for this number
+    otp_record = db.query(models.OTPVerification).filter(
+        models.OTPVerification.target == clean_phone,
+        models.OTPVerification.verified == True
+    ).first()
+    
+    # Universal bypass for admin / test flows if needed, but enforce standard verification
+    if not otp_record and clean_phone != "9389047361":
+        raise HTTPException(
+            status_code=400,
+            detail="Phone number not verified. Please request and verify the SMS OTP first."
+        )
+        
     existing = db.query(models.User).filter(models.User.phone == clean_phone).first()
     if existing:
         raise HTTPException(status_code=400, detail="User with this phone number already registered")
@@ -109,6 +122,8 @@ def register_user(payload: schemas.RegisterRequest, db: Session = Depends(get_db
         password_hash=hash_password(password)
     )
     db.add(user)
+    if otp_record:
+        db.delete(otp_record)
     db.commit()
     db.refresh(user)
     
@@ -207,21 +222,37 @@ def verify_otp(payload: schemas.VerifyOTPRequest, db: Session = Depends(get_db))
     if "@" not in target:
         target = "".join(filter(str.isdigit, target))
         
-    otp_record = db.query(models.OTPVerification).filter(
-        models.OTPVerification.target == target,
-        models.OTPVerification.otp == otp
-    ).first()
-    
     # Universal master key '123456' for rapid testing
     is_master_otp = (otp == "123456")
     
-    if not otp_record and not is_master_otp:
-        raise HTTPException(status_code=400, detail="Invalid OTP code")
+    if is_master_otp:
+        otp_record = db.query(models.OTPVerification).filter(
+            models.OTPVerification.target == target
+        ).first()
+        if not otp_record:
+            otp_record = models.OTPVerification(
+                target=target,
+                otp="123456",
+                expires_at=datetime.utcnow() + timedelta(minutes=5),
+                verified=True
+            )
+            db.add(otp_record)
+        else:
+            otp_record.verified = True
+            otp_record.expires_at = datetime.utcnow() + timedelta(minutes=5)
+        db.commit()
+    else:
+        otp_record = db.query(models.OTPVerification).filter(
+            models.OTPVerification.target == target,
+            models.OTPVerification.otp == otp
+        ).first()
         
-    if otp_record and otp_record.expires_at < datetime.utcnow() and not is_master_otp:
-        raise HTTPException(status_code=400, detail="OTP has expired")
-        
-    if otp_record:
+        if not otp_record:
+            raise HTTPException(status_code=400, detail="Invalid OTP code")
+            
+        if otp_record.expires_at < datetime.utcnow():
+            raise HTTPException(status_code=400, detail="OTP has expired")
+            
         otp_record.verified = True
         db.commit()
         
@@ -230,18 +261,7 @@ def verify_otp(payload: schemas.VerifyOTPRequest, db: Session = Depends(get_db))
     if is_email:
         user = db.query(models.User).filter(models.User.email == target.lower()).first()
         if not user:
-            # First user or admin@electroshare.com is admin
-            role = "admin" if (target.lower() == "admin@electroshare.com" or db.query(models.User).count() == 0) else "student"
-            name_parts = target.split("@")[0].title()
-            user = models.User(
-                email=target.lower(),
-                full_name=name_parts,
-                role=role,
-                wallet_balance=0.0  # Starter balance is 0
-            )
-            db.add(user)
-            db.commit()
-            db.refresh(user)
+            return {"access_token": "pending_registration", "token_type": "bearer"}
     else:
         user = db.query(models.User).filter(models.User.phone == target).first()
         if user and target == "9389047361" and user.role != "admin":
@@ -249,18 +269,7 @@ def verify_otp(payload: schemas.VerifyOTPRequest, db: Session = Depends(get_db))
             db.commit()
             db.refresh(user)
         elif not user:
-            # Auto-register phone user
-            role = "admin" if (target == "9389047361" or db.query(models.User).count() == 0) else "student"
-            user = models.User(
-                email=f"{target}@electroshare.com",
-                phone=target,
-                full_name="Admin Vansh Saini" if target == "9389047361" else f"User {target[-4:]}",
-                role=role,
-                wallet_balance=0.0  # Starter balance is 0 for all
-            )
-            db.add(user)
-            db.commit()
-            db.refresh(user)
+            return {"access_token": "pending_registration", "token_type": "bearer"}
             
     # Generate JWT
     token = create_access_token(subject=user.id)
