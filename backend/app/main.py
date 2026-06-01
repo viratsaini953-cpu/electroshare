@@ -10,10 +10,18 @@ async def lifespan(app: FastAPI):
     # Create all tables on startup if they don't exist
     # Base.metadata.drop_all(bind=engine)  # Kept commented out for reference/future schema updates
     Base.metadata.create_all(bind=engine)
-    
     # Seed default categories and admin user
     db = SessionLocal()
     try:
+        from sqlalchemy import text
+        try:
+            db.execute(text("ALTER TABLE combos ADD COLUMN image_url TEXT;"))
+            db.commit()
+            print("Added image_url column to combos table.")
+        except Exception as e:
+            db.rollback()
+            print(f"Skipping alter column: {e}")
+            
         if db.query(models.Category).count() == 0:
             categories = [
                 models.Category(

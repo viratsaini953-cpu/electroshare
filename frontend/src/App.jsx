@@ -43,6 +43,14 @@ const Icons = {
   Rent: () => <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
 };
 
+const categoryIcons = {
+  1: '🔌', // Microcontrollers & Development Boards
+  2: '🌡️', // Sensors & Modules
+  3: '⚙️', // Actuators, Motors & Drivers
+  4: '🔋', // Power, Cables & Prototyping
+  5: '📦', // Pre-built Semester Projects
+};
+
 export default function App() {
   // Navigation & Page routing state
   const [activeTab, setActiveTab] = useState('explore'); // 'explore', 'dashboard', 'list-product', 'admin', 'combos'
@@ -63,6 +71,8 @@ export default function App() {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [conditionFilter, setConditionFilter] = useState('');
   const [verifiedFilter, setVerifiedFilter] = useState(false);
   const [typeFilter, setTypeFilter] = useState('');
@@ -120,6 +130,7 @@ export default function App() {
   const [comboTitle, setComboTitle] = useState('');
   const [comboDesc, setComboDesc] = useState('');
   const [comboPrice, setComboPrice] = useState('');
+  const [comboImage, setComboImage] = useState('');
 
   // Toast / feedback message state
   const [toast, setToast] = useState({ message: '', type: 'success' });
@@ -218,6 +229,18 @@ export default function App() {
       }
     }
   }, [user, activeTab]);
+
+  // Search Autocomplete Suggestion Logic
+  useEffect(() => {
+    if (searchQuery.trim().length >= 1) {
+      const filtered = products
+        .filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()))
+        .slice(0, 5);
+      setSearchSuggestions(filtered);
+    } else {
+      setSearchSuggestions([]);
+    }
+  }, [searchQuery, products]);
 
   // Live pricing recommendations
   useEffect(() => {
@@ -526,7 +549,8 @@ export default function App() {
         title: comboTitle,
         description: comboDesc,
         price: parseFloat(comboPrice),
-        product_ids: comboSelectedProducts
+        product_ids: comboSelectedProducts,
+        image_url: comboImage
       };
 
       await apiRequest('/admin/combos/create', 'POST', comboBody);
@@ -534,6 +558,7 @@ export default function App() {
       setComboTitle('');
       setComboDesc('');
       setComboPrice('');
+      setComboImage('');
       setComboSelectedProducts([]);
       fetchCombos();
       fetchProducts();
@@ -850,6 +875,8 @@ export default function App() {
                     type="text" 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                     onKeyDown={(e) => e.key === 'Enter' && fetchProducts()}
                     placeholder="Search components (e.g. Ultrasonic sensor, Servo motor)..." 
                     className="w-full bg-white border border-slate-300 focus:border-brand-500 rounded-l-xl py-2 px-10 text-sm placeholder-dark-500 text-dark-800 outline-none transition-colors"
@@ -857,6 +884,25 @@ export default function App() {
                   <div className="absolute left-3.5 top-2.5 text-dark-500">
                     <Icons.Search />
                   </div>
+                  
+                  {showSuggestions && searchSuggestions.length > 0 && (
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-dark-900 border border-dark-800 rounded-xl overflow-hidden shadow-2xl z-30">
+                      {searchSuggestions.map((item) => (
+                        <div 
+                          key={item.id}
+                          onClick={() => {
+                            setSearchQuery(item.title);
+                            setShowSuggestions(false);
+                            setSelectedProduct(item);
+                          }}
+                          className="px-4 py-2.5 hover:bg-dark-850 cursor-pointer flex items-center justify-between text-xs transition-colors"
+                        >
+                          <span className="font-semibold text-white">{item.title}</span>
+                          <span className="text-[10px] text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded font-mono">₹{item.price}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <button 
                   onClick={fetchProducts}
@@ -901,30 +947,35 @@ export default function App() {
             </div>
 
             {/* Category selection */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-              <button 
-                onClick={() => { setSelectedCategory(null); }}
-                className={`text-xs font-semibold px-4 py-2.5 rounded-xl whitespace-nowrap transition-all border ${
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+              <div 
+                onClick={() => setSelectedCategory(null)}
+                className={`glass-panel p-4 rounded-2xl cursor-pointer text-center flex flex-col items-center justify-center gap-2 border transition-all hover:scale-102 hover:border-brand-500/50 ${
                   selectedCategory == null 
-                    ? 'bg-brand-500 text-white border-brand-500 shadow-md shadow-brand-500/10' 
-                    : 'bg-dark-900 border-dark-800 text-dark-300 hover:border-dark-700 hover:text-brand-500'
+                    ? 'border-brand-500 bg-brand-500/5 shadow-md shadow-brand-500/5' 
+                    : 'border-dark-800 bg-dark-900/35 text-dark-300 hover:bg-dark-900/65'
                 }`}
               >
-                All Components
-              </button>
-              {categories.map((cat) => (
-                <button 
-                  key={cat.id}
-                  onClick={() => { setSelectedCategory(cat.id); }}
-                  className={`text-xs font-semibold px-4 py-2.5 rounded-xl whitespace-nowrap transition-all border ${
-                    selectedCategory == cat.id 
-                      ? 'bg-brand-500 text-white border-brand-500 shadow-md shadow-brand-500/10' 
-                      : 'bg-dark-900 border-dark-800 text-dark-300 hover:border-dark-700 hover:text-brand-500'
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
+                <span className="text-3xl">🎛️</span>
+                <span className="text-xs font-bold text-white block mt-1">All Components</span>
+              </div>
+              {categories.map((cat) => {
+                const icon = categoryIcons[cat.id] || '🔌';
+                return (
+                  <div 
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`glass-panel p-4 rounded-2xl cursor-pointer text-center flex flex-col items-center justify-center gap-2 border transition-all hover:scale-102 hover:border-brand-500/50 ${
+                      selectedCategory == cat.id 
+                        ? 'border-brand-500 bg-brand-500/5 shadow-md shadow-brand-500/5' 
+                        : 'border-dark-800 bg-dark-900/35 text-dark-300 hover:bg-dark-900/65'
+                    }`}
+                  >
+                    <span className="text-3xl">{icon}</span>
+                    <span className="text-[10px] sm:text-xs font-bold text-white block mt-1 leading-snug">{cat.name}</span>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Catalog Grid */}
@@ -1162,6 +1213,16 @@ export default function App() {
                 {combos.map((combo) => (
                   <div key={combo.id} className="glass-panel border border-dark-800 rounded-3xl p-6 space-y-4 flex flex-col justify-between">
                     <div className="space-y-3">
+                      {combo.image_url ? (
+                        <div className="h-44 w-full rounded-2xl overflow-hidden border border-dark-800 relative bg-dark-950">
+                          <img src={combo.image_url} alt={combo.title} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-dark-950/80 to-transparent"></div>
+                        </div>
+                      ) : (
+                        <div className="h-32 w-full rounded-2xl overflow-hidden border border-dark-800 relative bg-gradient-to-tr from-brand-500/10 to-amber-500/10 flex items-center justify-center">
+                          <span className="text-3xl">📦</span>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between">
                         <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold px-3 py-1 rounded-full">
                           Starter Kit Bundle
@@ -1731,6 +1792,48 @@ export default function App() {
                       placeholder="Discounted combo price"
                       className="w-full bg-dark-950 border border-dark-800 rounded-xl p-2.5 text-xs text-white outline-none"
                     />
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-dark-400 font-semibold block mb-1.5">Combo Cover Photo (Optional)</label>
+                    <div className="flex items-center gap-3">
+                      {comboImage ? (
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-dark-800 bg-dark-950 flex items-center justify-center">
+                          <img src={comboImage} className="w-full h-full object-cover" />
+                          <button 
+                            type="button"
+                            onClick={() => setComboImage('')}
+                            className="absolute top-1 right-1 bg-red-600/85 text-white w-4 h-4 rounded-full flex items-center justify-center text-[10px]"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <label 
+                          htmlFor="combo-image-input"
+                          className="w-20 h-20 border border-dashed border-dark-800 hover:border-brand-500 rounded-xl flex flex-col items-center justify-center text-dark-400 hover:text-brand-400 cursor-pointer transition-colors"
+                        >
+                          <span className="text-xl">📷</span>
+                          <span className="text-[8px] font-semibold uppercase mt-1">Upload</span>
+                        </label>
+                      )}
+                      <input 
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setComboImage(reader.result);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="hidden"
+                        id="combo-image-input"
+                      />
+                    </div>
                   </div>
 
                   {/* Pick from catalog list */}

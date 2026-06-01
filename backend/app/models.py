@@ -126,6 +126,7 @@ class Combo(Base):
     title = Column(String(255), nullable=False)
     description = Column(String(1000), nullable=True)
     price = Column(Float, nullable=False)
+    image_url = Column(Text, nullable=True)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 

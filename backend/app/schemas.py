@@ -158,12 +158,14 @@ class ComboCreate(BaseModel):
     description: Optional[str] = None
     price: float
     product_ids: List[str]
+    image_url: Optional[str] = None
 
 class ComboResponse(BaseModel):
     id: str
     title: str
     description: Optional[str] = None
     price: float
+    image_url: Optional[str] = None
     created_by: str
     created_at: datetime
     products: List[ProductResponse]
