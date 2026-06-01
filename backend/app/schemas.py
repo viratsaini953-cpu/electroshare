@@ -159,6 +159,7 @@ class ComboCreate(BaseModel):
     price: float
     product_ids: List[str]
     image_url: Optional[str] = None
+    components: Optional[str] = None
 
 class ComboResponse(BaseModel):
     id: str
@@ -166,6 +167,7 @@ class ComboResponse(BaseModel):
     description: Optional[str] = None
     price: float
     image_url: Optional[str] = None
+    components: Optional[str] = None
     created_by: str
     created_at: datetime
     products: List[ProductResponse]

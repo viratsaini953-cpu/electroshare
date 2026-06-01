@@ -131,6 +131,7 @@ export default function App() {
   const [comboDesc, setComboDesc] = useState('');
   const [comboPrice, setComboPrice] = useState('');
   const [comboImage, setComboImage] = useState('');
+  const [comboComponents, setComboComponents] = useState('');
 
   // Toast / feedback message state
   const [toast, setToast] = useState({ message: '', type: 'success' });
@@ -540,8 +541,8 @@ export default function App() {
   // Admin combo kit creation
   const handleCreateCombo = async (e) => {
     e.preventDefault();
-    if (comboSelectedProducts.length < 2) {
-      showToast('Select at least 2 components to pack a Combo Kit.', 'error');
+    if (comboSelectedProducts.length < 2 && !comboComponents.trim()) {
+      showToast('Select at least 2 components OR specify the components list.', 'error');
       return;
     }
     try {
@@ -550,7 +551,8 @@ export default function App() {
         description: comboDesc,
         price: parseFloat(comboPrice),
         product_ids: comboSelectedProducts,
-        image_url: comboImage
+        image_url: comboImage,
+        components: comboComponents
       };
 
       await apiRequest('/admin/combos/create', 'POST', comboBody);
@@ -559,6 +561,7 @@ export default function App() {
       setComboDesc('');
       setComboPrice('');
       setComboImage('');
+      setComboComponents('');
       setComboSelectedProducts([]);
       fetchCombos();
       fetchProducts();
@@ -1234,14 +1237,20 @@ export default function App() {
                       
                       <div className="border-t border-dark-850 pt-3">
                         <span className="text-[10px] text-dark-400 font-semibold block uppercase mb-2">Included Components</span>
-                        <div className="space-y-2">
-                          {combo.products.map((p) => (
-                            <div key={p.id} className="flex items-center justify-between text-xs bg-dark-950/50 p-2 rounded-xl border border-dark-900">
-                              <span className="text-white font-medium">{p.title}</span>
-                              <span className="text-[10px] bg-dark-900 px-2 py-0.5 rounded text-dark-300 capitalize">{p.condition.replace('_', ' ')}</span>
-                            </div>
-                          ))}
-                        </div>
+                        {combo.components ? (
+                          <div className="text-xs bg-dark-950/50 p-3 rounded-xl border border-dark-900 text-white whitespace-pre-line leading-relaxed">
+                            {combo.components}
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {combo.products.map((p) => (
+                              <div key={p.id} className="flex items-center justify-between text-xs bg-dark-950/50 p-2 rounded-xl border border-dark-900">
+                                <span className="text-white font-medium">{p.title}</span>
+                                <span className="text-[10px] bg-dark-900 px-2 py-0.5 rounded text-dark-300 capitalize">{p.condition.replace('_', ' ')}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1251,11 +1260,13 @@ export default function App() {
                         if (combo.products.length > 0) {
                           setSelectedProduct(combo.products[0]);
                           handleOrderInitiation('buy');
+                        } else {
+                          showToast('This custom combo kit is compiled by the Hub. Please visit the admin desk to purchase.', 'info');
                         }
                       }}
                       className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md mt-4"
                     >
-                      Purchase Bundle Kit
+                      {combo.products.length > 0 ? 'Purchase Bundle Kit' : 'Available at Admin Hub 🏢'}
                     </button>
                   </div>
                 ))}
@@ -1834,6 +1845,22 @@ export default function App() {
                         id="combo-image-input"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs text-dark-400 font-semibold block mb-1.5">
+                      Included Components List
+                    </label>
+                    <textarea 
+                      value={comboComponents}
+                      onChange={(e) => setComboComponents(e.target.value)}
+                      placeholder="e.g., 1x Arduino Uno, 1x 16x2 LCD, 20x Jumper Wires, 1x Breadboard"
+                      rows={2.5}
+                      className="w-full bg-dark-950 border border-dark-800 rounded-xl p-2.5 text-xs text-white outline-none focus:border-brand-500 transition-colors resize-none"
+                    />
+                    <p className="text-[10px] text-dark-500 mt-1">
+                      Specify the list of all materials included in this combo package.
+                    </p>
                   </div>
 
                   {/* Pick from catalog list */}

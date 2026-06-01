@@ -20,7 +20,15 @@ async def lifespan(app: FastAPI):
             print("Added image_url column to combos table.")
         except Exception as e:
             db.rollback()
-            print(f"Skipping alter column: {e}")
+            print(f"Skipping alter image_url column: {e}")
+
+        try:
+            db.execute(text("ALTER TABLE combos ADD COLUMN components TEXT;"))
+            db.commit()
+            print("Added components column to combos table.")
+        except Exception as e:
+            db.rollback()
+            print(f"Skipping alter components column: {e}")
             
         if db.query(models.Category).count() == 0:
             categories = [

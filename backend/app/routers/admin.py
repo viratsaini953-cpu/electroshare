@@ -98,6 +98,7 @@ def create_combo_kit(
         description=payload.description,
         price=payload.price,
         image_url=payload.image_url,
+        components=payload.components,
         created_by=admin.id
     )
     db.add(combo)
