@@ -168,6 +168,7 @@ class ComboResponse(BaseModel):
     price: float
     image_url: Optional[str] = None
     components: Optional[str] = None
+    product_id: Optional[str] = None
     created_by: str
     created_at: datetime
     products: List[ProductResponse]
@@ -181,3 +182,24 @@ class WalletTopupRequest(BaseModel):
 class ProfileUpdateRequest(BaseModel):
     full_name: str
     email: str
+
+class KitRequestCreate(BaseModel):
+    project_name: str
+    components: str
+    target_budget: Optional[float] = None
+    notes: Optional[str] = None
+
+class KitRequestResponse(BaseModel):
+    id: str
+    user_id: str
+    project_name: str
+    components: str
+    target_budget: Optional[float] = None
+    notes: Optional[str] = None
+    status: str
+    created_at: datetime
+    user_phone: Optional[str] = None
+    user_name: Optional[str] = None
+
+    class Config:
+        from_attributes = True

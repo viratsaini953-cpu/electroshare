@@ -93,12 +93,32 @@ def create_combo_kit(
                 detail=f"Product '{p.title}' is currently unavailable (status: {p.status})"
             )
             
+    # 1. Create a virtual product representing the Combo Kit
+    combo_product = models.Product(
+        title=f"📦 [Combo Kit] {payload.title}",
+        description=payload.description or f"Curated Project Combo Kit consisting of: {payload.components or ''}",
+        category_id=5,  # Pre-built Semester Projects
+        condition="new",
+        price=payload.price,
+        market_price=payload.price * 1.25,
+        age_months=0,
+        listing_type="sale",
+        status="available",
+        seller_id=admin.id,
+        image_url=payload.image_url or "https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400"
+    )
+    db.add(combo_product)
+    db.commit()
+    db.refresh(combo_product)
+
+    # 2. Create the Combo
     combo = models.Combo(
         title=payload.title,
         description=payload.description,
         price=payload.price,
         image_url=payload.image_url,
         components=payload.components,
+        product_id=combo_product.id,
         created_by=admin.id
     )
     db.add(combo)
@@ -173,6 +193,15 @@ def delete_combo(
         )
     )
     
+    # Cascade delete virtual product listing representing this combo
+    if combo.product_id:
+        order_ids = [o.id for o in db.query(models.Order).filter(models.Order.product_id == combo.product_id).all()]
+        if order_ids:
+            db.query(models.EscrowTransaction).filter(models.EscrowTransaction.order_id.in_(order_ids)).delete(synchronize_session=False)
+        db.query(models.Rental).filter(models.Rental.product_id == combo.product_id).delete(synchronize_session=False)
+        db.query(models.Order).filter(models.Order.product_id == combo.product_id).delete(synchronize_session=False)
+        db.query(models.Product).filter(models.Product.id == combo.product_id).delete(synchronize_session=False)
+        
     db.delete(combo)
     db.commit()
     return {"message": "Combo kit deleted successfully"}

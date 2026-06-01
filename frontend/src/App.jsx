@@ -136,6 +136,15 @@ export default function App() {
   const [comboImage, setComboImage] = useState('');
   const [comboComponents, setComboComponents] = useState('');
 
+  // Custom Kit Requests
+  const [kitRequests, setKitRequests] = useState([]);
+  const [allKitRequests, setAllKitRequests] = useState([]);
+  const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+  const [reqProjectName, setReqProjectName] = useState('');
+  const [reqComponents, setReqComponents] = useState('');
+  const [reqBudget, setReqBudget] = useState('');
+  const [reqNotes, setReqNotes] = useState('');
+
   // Toast / feedback message state
   const [toast, setToast] = useState({ message: '', type: 'success' });
 
@@ -320,9 +329,15 @@ export default function App() {
       const sales = await apiRequest('/orders/my-sales');
       setMySales(sales);
 
+      const reqs = await apiRequest('/kit-requests/my-requests');
+      setKitRequests(reqs);
+
       if (user?.role === 'admin') {
         const adminOrders = await apiRequest('/admin/orders');
         setAllOrders(adminOrders);
+
+        const adminReqs = await apiRequest('/kit-requests/admin-all');
+        setAllKitRequests(adminReqs);
       }
     } catch (err) {
       console.error('Error fetching dashboard listings:', err);
@@ -629,6 +644,44 @@ export default function App() {
       fetchCombos();
       fetchProducts();
       setActiveTab('explore');
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  // Student custom kit request creation
+  const handleCreateKitRequest = async (e) => {
+    e.preventDefault();
+    if (!reqProjectName.trim() || !reqComponents.trim()) {
+      showToast('Please fill in the project name and required components.', 'error');
+      return;
+    }
+    try {
+      const payload = {
+        project_name: reqProjectName,
+        components: reqComponents,
+        target_budget: reqBudget ? parseFloat(reqBudget) : null,
+        notes: reqNotes
+      };
+      await apiRequest('/kit-requests/create', 'POST', payload);
+      showToast('Your custom kit request has been sent to admin!');
+      setIsRequestModalOpen(false);
+      setReqProjectName('');
+      setReqComponents('');
+      setReqBudget('');
+      setReqNotes('');
+      fetchDashboardData();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
+  // Admin updates request status
+  const handleUpdateKitRequestStatus = async (reqId, newStatus) => {
+    try {
+      await apiRequest(`/kit-requests/${reqId}/update-status?new_status=${newStatus}`, 'POST');
+      showToast(`Request status updated to ${newStatus}`);
+      fetchDashboardData();
     } catch (err) {
       showToast(err.message, 'error');
     }
@@ -1312,6 +1365,14 @@ export default function App() {
               <p className="text-sm text-dark-300">
                 Premium starter kits bundled by hub admins from individual student components. Get basic project accessories at highly discounted package prices.
               </p>
+              {user && (
+                <button
+                  onClick={() => setIsRequestModalOpen(true)}
+                  className="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md transition-all inline-flex items-center gap-1.5 cursor-pointer mt-2"
+                >
+                  ➕ Request a Custom Kit / Combo
+                </button>
+              )}
             </div>
 
             {combos.length === 0 ? (
@@ -1377,17 +1438,29 @@ export default function App() {
 
                     <button 
                       onClick={() => {
-                        // Quick purchase of combo by selecting first item for checkout
-                        if (combo.products.length > 0) {
+                        if (combo.product_id) {
+                          const mockProduct = {
+                            id: combo.product_id,
+                            title: `📦 [Combo Kit] ${combo.title}`,
+                            price: combo.price,
+                            market_price: combo.price * 1.25,
+                            listing_type: 'sale',
+                            seller_id: combo.created_by,
+                            verification_status: 'verified'
+                          };
+                          setSelectedProduct(mockProduct);
+                          handleOrderInitiation('buy');
+                        } else if (combo.products.length > 0) {
+                          // Fallback to first product
                           setSelectedProduct(combo.products[0]);
                           handleOrderInitiation('buy');
                         } else {
-                          showToast('This custom combo kit is compiled by the Hub. Please visit the admin desk to purchase.', 'info');
+                          showToast('This combo kit cannot be purchased right now.', 'error');
                         }
                       }}
-                      className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md mt-4"
+                      className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md mt-4 cursor-pointer"
                     >
-                      {combo.products.length > 0 ? 'Purchase Bundle Kit' : 'Available at Admin Hub 🏢'}
+                      Purchase Combo Kit ➜
                     </button>
                   </div>
                 ))}
@@ -1789,6 +1862,70 @@ export default function App() {
                   </div>
                 )}
               </div>
+
+              {/* Custom Kit Requests */}
+              <div className="space-y-4 pt-4 border-t border-dark-850">
+                <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">My Custom Kit Requests</h4>
+                
+                {kitRequests.length === 0 ? (
+                  <p className="text-xs text-dark-400 bg-dark-900/20 border border-dark-800 p-4 rounded-xl">You have not requested any custom kits yet.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {kitRequests.map((req) => (
+                      <div key={req.id} className="bg-dark-900/60 border border-dark-800 rounded-2xl p-5 space-y-3">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <h4 className="font-bold text-white text-sm">🛠️ {req.project_name}</h4>
+                            <span className="text-[10px] text-dark-400">Requested on: {new Date(req.created_at).toLocaleDateString()}</span>
+                          </div>
+                          <div>
+                            {req.status === 'pending' && (
+                              <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                                ⏳ Pending Review
+                              </span>
+                            )}
+                            {req.status === 'assembling' && (
+                              <span className="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap animate-pulse">
+                                ⚙️ Assembling at Hub
+                              </span>
+                            )}
+                            {req.status === 'ready' && (
+                              <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                                ✅ Ready at Hub
+                              </span>
+                            )}
+                            {req.status === 'cancelled' && (
+                              <span className="bg-dark-800 border border-dark-700 text-dark-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                                ❌ Cancelled
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="space-y-2 border-t border-dark-850 pt-2 text-xs">
+                          <div>
+                            <span className="text-[10px] text-dark-450 font-bold block uppercase mb-1">Required Components</span>
+                            <div className="bg-dark-950 p-2.5 rounded-lg text-dark-300 font-mono text-[11px] whitespace-pre-wrap">
+                              {req.components}
+                            </div>
+                          </div>
+                          {req.target_budget && (
+                            <p className="text-[11px] text-dark-350">
+                              <span className="font-semibold text-dark-400">Target Budget:</span> ₹{req.target_budget}
+                            </p>
+                          )}
+                          {req.notes && (
+                            <p className="text-[11px] text-dark-350">
+                              <span className="font-semibold text-dark-400">Notes:</span> {req.notes}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
         )}
@@ -2015,6 +2152,105 @@ export default function App() {
               </div>
 
             </div>
+
+            {/* Custom Kit Requests Panel */}
+            <div className="space-y-4 pt-6 border-t border-dark-800">
+              <h3 className="text-sm font-extrabold text-amber-400 uppercase tracking-wider">📋 Student Custom Kit Requests</h3>
+              
+              {allKitRequests.length === 0 ? (
+                <p className="text-xs text-dark-400 bg-dark-900/20 border border-dark-800 p-4 rounded-xl">No custom kit requests submitted yet.</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {allKitRequests.map((req) => (
+                    <div key={req.id} className="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 space-y-4 font-sans text-white">
+                      <div className="flex justify-between items-start gap-4">
+                        <div>
+                          <h4 className="font-bold text-white text-sm">🛠️ {req.project_name}</h4>
+                          <span className="text-[10px] text-dark-450 block">Requested on: {new Date(req.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <div>
+                          {req.status === 'pending' && (
+                            <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                              ⏳ Pending Review
+                            </span>
+                          )}
+                          {req.status === 'assembling' && (
+                            <span className="bg-blue-500/10 border border-blue-500/20 text-blue-455 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                              ⚙️ Assembling at Hub
+                            </span>
+                          )}
+                          {req.status === 'ready' && (
+                            <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                              ✅ Ready at Hub
+                            </span>
+                          )}
+                          {req.status === 'cancelled' && (
+                            <span className="bg-dark-800 border border-dark-700 text-dark-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                              ❌ Cancelled
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Requester Contact details card */}
+                      <div className="bg-dark-950 p-3 rounded-xl border border-dark-800/80 space-y-1 text-left">
+                        <span className="text-[9px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-bold px-2 py-0.5 rounded uppercase tracking-wider">Student Requester</span>
+                        <h5 className="font-bold text-white text-xs mt-1">{req.user_name || 'Anonymous Student'}</h5>
+                        <p className="text-[11px] text-dark-300">📞 Call: <a href={`tel:${req.user_phone}`} className="text-brand-400 font-bold hover:underline">{req.user_phone || 'No Phone'}</a></p>
+                      </div>
+
+                      <div className="space-y-2 border-t border-dark-850 pt-3 text-xs text-left">
+                        <div>
+                          <span className="text-[10px] text-dark-450 font-bold block uppercase mb-1">Required Components</span>
+                          <div className="bg-dark-950 p-2.5 rounded-lg text-dark-300 font-mono text-[11px] whitespace-pre-wrap">
+                            {req.components}
+                          </div>
+                        </div>
+                        {req.target_budget && (
+                          <p className="text-[11px] text-dark-350">
+                            <span className="font-semibold text-dark-450">Target Budget:</span> ₹{req.target_budget}
+                          </p>
+                        )}
+                        {req.notes && (
+                          <p className="text-[11px] text-dark-350">
+                            <span className="font-semibold text-dark-400">Notes:</span> {req.notes}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Status updates buttons */}
+                      <div className="pt-3 border-t border-dark-850 space-y-2 text-left">
+                        <label className="text-[10px] text-dark-400 font-bold block uppercase">Hub Assembly Actions</label>
+                        <div className="flex flex-wrap gap-2">
+                          <button 
+                            disabled={req.status === 'assembling'}
+                            onClick={() => handleUpdateKitRequestStatus(req.id, 'assembling')}
+                            className="bg-blue-950 hover:bg-blue-900 border border-blue-500/20 text-blue-400 text-[10px] font-bold disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+                          >
+                            ⚙️ Start Assembly
+                          </button>
+                          <button 
+                            disabled={req.status === 'ready'}
+                            onClick={() => handleUpdateKitRequestStatus(req.id, 'ready')}
+                            className="bg-emerald-950 hover:bg-emerald-900 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+                          >
+                            ✅ Mark Ready at Hub
+                          </button>
+                          <button 
+                            disabled={req.status === 'cancelled'}
+                            onClick={() => handleUpdateKitRequestStatus(req.id, 'cancelled')}
+                            className="bg-rose-950 hover:bg-rose-900 border border-rose-500/20 text-rose-450 text-[10px] font-bold disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg transition-all cursor-pointer"
+                          >
+                            ❌ Cancel Request
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
           </div>
         )}
 
@@ -2226,6 +2462,76 @@ export default function App() {
                 className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md"
               >
                 Save Profile Changes
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* CUSTOM KIT REQUEST MODAL */}
+      {isRequestModalOpen && (
+        <div className="fixed inset-0 z-50 bg-dark-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="glass-panel border border-dark-800 rounded-3xl p-6 w-full max-w-md space-y-4 relative">
+            <button 
+              onClick={() => setIsRequestModalOpen(false)}
+              className="absolute top-4 right-4 text-dark-400 hover:text-white"
+            >
+              ✕
+            </button>
+
+            <div className="text-center space-y-1">
+              <span className="text-3xl">🛠️</span>
+              <h3 className="text-lg font-bold text-white font-sans">Request a Custom Kit / Project Combo</h3>
+              <p className="text-xs text-dark-400">Need specific components for a lab experiment or semester project? Submit a request and the Admin Hub will gather the kit for you.</p>
+            </div>
+
+            <form onSubmit={handleCreateKitRequest} className="space-y-4">
+              <div>
+                <label className="text-xs text-dark-400 font-semibold block mb-1">Project Name / Topic *</label>
+                <input 
+                  type="text"
+                  required
+                  value={reqProjectName}
+                  onChange={(e) => setReqProjectName(e.target.value)}
+                  placeholder="e.g. Line Follower Robot / IoT Weather Station"
+                  className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3 text-sm outline-none focus:border-brand-500 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-dark-400 font-semibold block mb-1">Required Components *</label>
+                <textarea 
+                  required
+                  rows="3"
+                  value={reqComponents}
+                  onChange={(e) => setReqComponents(e.target.value)}
+                  placeholder="e.g. 1x Arduino Uno, 1x L298N Motor Driver, 2x BO Motors, Jumper Wires..."
+                  className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3 text-sm outline-none focus:border-brand-500 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-dark-400 font-semibold block mb-1">Target Budget (₹, Optional)</label>
+                <input 
+                  type="number"
+                  value={reqBudget}
+                  onChange={(e) => setReqBudget(e.target.value)}
+                  placeholder="e.g. 1200"
+                  className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3 text-sm outline-none focus:border-brand-500 transition-colors"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-dark-400 font-semibold block mb-1">Special Instructions / Notes (Optional)</label>
+                <textarea 
+                  rows="2"
+                  value={reqNotes}
+                  onChange={(e) => setReqNotes(e.target.value)}
+                  placeholder="e.g. Need solderless breadboard, please assemble by this Friday."
+                  className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3 text-sm outline-none focus:border-brand-500 transition-colors font-sans"
+                />
+              </div>
+              <button 
+                type="submit"
+                className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-md cursor-pointer"
+              >
+                Submit Custom Kit Request
               </button>
             </form>
           </div>

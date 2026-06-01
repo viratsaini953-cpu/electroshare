@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.database import engine, Base, SessionLocal
 from app import models
-from app.routers import auth, products, orders, admin
+from app.routers import auth, products, orders, admin, kit_requests
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -29,6 +29,48 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             db.rollback()
             print(f"Skipping alter components column: {e}")
+
+        try:
+            db.execute(text("ALTER TABLE combos ADD COLUMN product_id TEXT;"))
+            db.commit()
+            print("Added product_id column to combos table.")
+        except Exception as e:
+            db.rollback()
+            print(f"Skipping alter product_id column: {e}")
+
+        # Backfill existing combos with a virtual product
+        try:
+            unlinked_combos = db.query(models.Combo).filter(models.Combo.product_id == None).all()
+            if unlinked_combos:
+                admin_user = db.query(models.User).filter(models.User.role == "admin").first()
+                admin_id = admin_user.id if admin_user else None
+                if not admin_id:
+                    # Fallback to any user if no admin found
+                    any_user = db.query(models.User).first()
+                    admin_id = any_user.id if any_user else "admin_seed"
+                for combo in unlinked_combos:
+                    vp = models.Product(
+                        title=f"📦 [Combo Kit] {combo.title}",
+                        description=combo.description or f"Curated Combo Kit including components: {combo.components or ''}",
+                        category_id=5,
+                        condition="new",
+                        price=combo.price,
+                        market_price=combo.price * 1.25,
+                        age_months=0,
+                        listing_type="sale",
+                        status="available",
+                        seller_id=admin_id,
+                        image_url=combo.image_url or "https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400"
+                    )
+                    db.add(vp)
+                    db.commit()
+                    db.refresh(vp)
+                    combo.product_id = vp.id
+                    db.commit()
+                print(f"Backfilled {len(unlinked_combos)} combos with virtual product listings.")
+        except Exception as e:
+            db.rollback()
+            print(f"Failed to backfill combos: {e}")
             
         if db.query(models.Category).count() == 0:
             categories = [
@@ -130,6 +172,7 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(products.router, prefix="/api/v1")
 app.include_router(orders.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")
+app.include_router(kit_requests.router, prefix="/api/v1")
 
 @app.get("/")
 def read_root():

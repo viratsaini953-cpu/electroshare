@@ -71,6 +71,7 @@ def create_order(
     db.add(escrow)
     
     # Set product availability
+    is_combo_product = db.query(models.Combo).filter(models.Combo.product_id == product.id).first() is not None
     if payload.order_type == "rent":
         rental = models.Rental(
             order_id=order.id,
@@ -83,7 +84,8 @@ def create_order(
         db.add(rental)
         product.status = "rented"
     else:
-        product.status = "pending_escrow"
+        if not is_combo_product:
+            product.status = "pending_escrow"
         
     db.commit()
     db.refresh(order)
@@ -138,7 +140,8 @@ def confirm_receipt(id: str, current_user: models.User = Depends(get_current_use
     seller = order.product.seller
     seller.wallet_balance += escrow.amount
     
-    if order.order_type == "buy":
+    is_combo_product = db.query(models.Combo).filter(models.Combo.product_id == order.product.id).first() is not None
+    if order.order_type == "buy" and not is_combo_product:
         order.product.status = "sold"
         
     db.commit()

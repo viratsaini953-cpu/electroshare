@@ -128,6 +128,7 @@ class Combo(Base):
     price = Column(Float, nullable=False)
     image_url = Column(Text, nullable=True)
     components = Column(Text, nullable=True)
+    product_id = Column(String(36), ForeignKey("products.id"), nullable=True)
     created_by = Column(String(36), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -142,3 +143,18 @@ class OTPVerification(Base):
     otp = Column(String(6), nullable=False)
     expires_at = Column(DateTime, nullable=False)
     verified = Column(Boolean, default=False)
+
+class KitRequest(Base):
+    __tablename__ = "kit_requests"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), ForeignKey("users.id"), nullable=False)
+    project_name = Column(String(255), nullable=False)
+    components = Column(Text, nullable=False)
+    target_budget = Column(Float, nullable=True)
+    notes = Column(Text, nullable=True)
+    status = Column(String(50), default="pending")  # "pending", "assembling", "ready", "cancelled"
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", backref="kit_requests")
