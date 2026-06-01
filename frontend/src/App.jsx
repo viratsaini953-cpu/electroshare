@@ -108,11 +108,9 @@ export default function App() {
   const [selectedUPI, setSelectedUPI] = useState('gpay'); // 'gpay', 'phonepe', 'paytm'
   const [upiPin, setUpiPin] = useState('');
 
-  // Dashboard orders/wallet
+  // Dashboard orders
   const [myPurchases, setMyPurchases] = useState([]);
   const [mySales, setMySales] = useState([]);
-  const [walletAmount, setWalletAmount] = useState('');
-  const [walletModalOpen, setWalletModalOpen] = useState(false);
 
   // Admin section
   const [allOrders, setAllOrders] = useState([]);
@@ -375,34 +373,7 @@ export default function App() {
     showToast('Signed out successfully.');
   };
 
-  // 3. Wallet topups
-  const handleWalletTopup = async (e) => {
-    e.preventDefault();
-    if (!walletAmount || parseFloat(walletAmount) <= 0) return;
-    
-    setPaymentSimulating(true);
-    setPaymentStep('processing');
-    setWalletModalOpen(false);
-    
-    setTimeout(async () => {
-      try {
-        const updatedUser = await apiRequest('/auth/wallet/topup', 'POST', {
-          amount: parseFloat(walletAmount)
-        });
-        setUser(updatedUser);
-        setWalletAmount('');
-        showToast(`Added ₹${walletAmount} to escrow wallet.`, 'success');
-        setPaymentStep('success');
-      } catch (err) {
-        showToast('Failed to credit wallet.', 'error');
-        setPaymentSimulating(false);
-      }
-    }, 1200);
-  };
 
-  const completeWalletTopup = async () => {
-    // Kept for backward compatibility
-  };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
@@ -803,15 +774,6 @@ export default function App() {
           <div className="flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-4">
-                {/* Wallet Badge */}
-                <div 
-                  onClick={() => setWalletModalOpen(true)}
-                  className="bg-dark-900 hover:bg-dark-800 border border-dark-800 rounded-xl px-3 py-1.5 flex items-center gap-2 cursor-pointer transition-all"
-                >
-                  <Icons.Wallet />
-                  <span className="text-sm font-semibold text-brand-400">₹{user.wallet_balance.toFixed(2)}</span>
-                </div>
-                
                 {/* Dashboard Profile */}
                 <button 
                   onClick={() => { setActiveTab('dashboard'); setSelectedProduct(null); }}
@@ -1614,16 +1576,7 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="flex flex-col items-center md:items-end gap-2 bg-dark-900/50 p-4 rounded-2xl border border-dark-800">
-                <span className="text-xs text-dark-400">Escrow Wallet Balance</span>
-                <span className="text-3xl font-black text-white">₹{user?.wallet_balance.toFixed(2)}</span>
-                <button 
-                  onClick={() => setWalletModalOpen(true)}
-                  className="bg-brand-500 hover:bg-brand-600 text-white text-xs font-semibold px-4 py-1.5 rounded-lg transition-all"
-                >
-                  💳 Deposit Funds
-                </button>
-              </div>
+
             </div>
 
             {/* Dashboard Subtabs */}
@@ -1742,7 +1695,7 @@ export default function App() {
 
                         {ord.order_status === 'placed' && (
                           <div className="bg-amber-500/5 border border-amber-500/20 p-3.5 rounded-xl text-[10px] text-amber-300 leading-relaxed">
-                            ⚠️ Please deliver this component to the **Block 34 Hub / Dead-drop location** for admin testing. Keep the escrow active. Once tested and handed over to the buyer, money will be automatically credited to your wallet!
+                            ⚠️ Please deliver this component to the **Block 34 Hub / Dead-drop location** for admin testing. Keep the escrow active. Once tested and handed over to the buyer, payment will be completed!
                           </div>
                         )}
                       </div>
@@ -2053,45 +2006,7 @@ export default function App() {
         </div>
       )}
 
-      {/* MODAL 3: DEPOSIT FUNDS MODAL */}
-      {walletModalOpen && (
-        <div className="fixed inset-0 z-40 bg-dark-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel border border-dark-800 rounded-3xl p-6 w-full max-w-sm space-y-4 relative">
-            <button 
-              onClick={() => setWalletModalOpen(false)}
-              className="absolute top-4 right-4 text-dark-400 hover:text-white"
-            >
-              ✕
-            </button>
 
-            <div className="text-center space-y-1">
-              <span className="text-3xl">💳</span>
-              <h3 className="text-lg font-bold text-white">Deposit to Escrow Wallet</h3>
-              <p className="text-xs text-dark-400">Add funds instantly using UPI Sandbox.</p>
-            </div>
-
-            <form onSubmit={handleWalletTopup} className="space-y-4">
-              <div>
-                <label className="text-xs text-dark-400 font-semibold block mb-1">Amount (₹)</label>
-                <input 
-                  type="number"
-                  required
-                  value={walletAmount}
-                  onChange={(e) => setWalletAmount(e.target.value)}
-                  placeholder="e.g. 500"
-                  className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3 text-sm text-center font-bold outline-none"
-                />
-              </div>
-              <button 
-                type="submit"
-                className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-xl transition-all"
-              >
-                Proceed to Pay
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* PAYMENT GATEWAY INTERACTIVE OVERLAY */}
       {paymentSimulating && (
