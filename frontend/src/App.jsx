@@ -283,6 +283,14 @@ const FALLBACK_COMBOS = [
   }
 ];
 
+const FALLBACK_CATEGORIES = [
+  { id: 1, name: 'Microcontrollers & Dev Boards', description: 'Arduino, ESP32, Raspberry Pi' },
+  { id: 2, name: 'Sensors & Modules', description: 'Ultrasonic, Temperature, RFID' },
+  { id: 3, name: 'Actuators, Motors & Drivers', description: 'Servo Motors, L298N Drivers' },
+  { id: 4, name: 'Power, Cables & Prototyping', description: 'Breadboards, Jumper Wires' },
+  { id: 5, name: 'Pre-built Semester Projects', description: 'IoT, Robotics, Automation Projects' }
+];
+
 export default function App() {
   // Navigation & Page routing state
   const [activeTab, setActiveTab] = useState('explore'); // 'explore', 'dashboard', 'list-product', 'admin', 'combos'
@@ -302,8 +310,9 @@ export default function App() {
   const [otpCountdown, setOtpCountdown] = useState(0);
 
   // Catalog State
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const [products, setProducts] = useState(FALLBACK_PRODUCTS);
+  const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
+  const [combos, setCombos] = useState(FALLBACK_COMBOS);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchSuggestions, setSearchSuggestions] = useState([]);
