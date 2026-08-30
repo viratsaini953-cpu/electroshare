@@ -127,11 +127,12 @@
         .panel-img-box {
             position: relative;
             width: 100%;
-            background: #F8FAFC;
+            background: #FFFFFF;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            min-height: 260px;
         }
 
         .panel-img {
@@ -145,7 +146,7 @@
         .panel-caption-box {
             background: #0F172A;
             color: #F8FAFC;
-            padding: 0.9rem 1rem;
+            padding: 1rem;
             border-top: 3px solid #000000;
             flex-grow: 1;
             display: flex;
@@ -155,17 +156,34 @@
 
         .panel-caption-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 800;
             color: #38BDF8;
             margin-bottom: 0.4rem;
         }
 
         .panel-caption-text {
-            font-size: 0.84rem;
+            font-size: 0.85rem;
             color: #CBD5E1;
             line-height: 1.5;
-            margin-bottom: 0.6rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .panel-explanation {
+            background: rgba(30, 41, 59, 0.9);
+            border-left: 3px solid #FACC15;
+            padding: 0.6rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #E2E8F0;
+            line-height: 1.4;
+            margin-bottom: 0.8rem;
+        }
+
+        .panel-explanation strong {
+            color: #FACC15;
+            display: block;
+            margin-bottom: 0.2rem;
         }
 
         .panel-tags {
@@ -218,8 +236,11 @@
                     <img src="assets/comic_1.png" alt="Panel 1: Introduction" class="panel-img">
                 </div>
                 <div class="panel-caption-box">
-                    <div class="panel-caption-title">Professional Intro</div>
+                    <div class="panel-caption-title">Phase 1: Professional Intro</div>
                     <div class="panel-caption-text">Vansh Saini — Computer Science & Engineering (AI & ML) Student at LPU.</div>
+                    <div class="panel-explanation">
+                        <strong>Speech Cue:</strong> "I am Vansh Saini, combining 9.6 CGPA academic discipline with hands-on software development in AI & Machine Learning."
+                    </div>
                     <div class="panel-tags">
                         <span class="panel-tag-chip">Vansh Saini</span>
                         <span class="panel-tag-chip">LPU</span>
@@ -235,8 +256,11 @@
                     <img src="assets/comic_2.png" alt="Panel 2: Education" class="panel-img">
                 </div>
                 <div class="panel-caption-box">
-                    <div class="panel-caption-title">Academics & Rating</div>
+                    <div class="panel-caption-title">Phase 2: Academic Rigor</div>
                     <div class="panel-caption-text">B.Tech CSE AI & ML at LPU (CGPA: 9.6) & Silver Bells Class XII PCM (83.4%).</div>
+                    <div class="panel-explanation">
+                        <strong>Speech Cue:</strong> "Maintained 9.6 CGPA at LPU. Built mathematical background from Class XII PCM (83.4%) at Silver Bells Public School."
+                    </div>
                     <div class="panel-tags">
                         <span class="panel-tag-chip">9.6 CGPA</span>
                         <span class="panel-tag-chip">PCM 83.4%</span>
@@ -252,8 +276,11 @@
                     <img src="assets/comic_3.png" alt="Panel 3: Skills" class="panel-img">
                 </div>
                 <div class="panel-caption-box">
-                    <div class="panel-caption-title">Technical Competencies</div>
+                    <div class="panel-caption-title">Phase 3: Tech Stack & Tools</div>
                     <div class="panel-caption-text">C++, Python, C, MongoDB, MS SQL Server & Leadership soft skills.</div>
+                    <div class="panel-explanation">
+                        <strong>Speech Cue:</strong> "Proficient in C++ OOP, Python ML libraries, MongoDB NoSQL, MS SQL relational DBs, and teamwork."
+                    </div>
                     <div class="panel-tags">
                         <span class="panel-tag-chip">C++</span>
                         <span class="panel-tag-chip">Python</span>
@@ -270,8 +297,11 @@
                     <img src="assets/comic_4.png" alt="Panel 4: Experience" class="panel-img">
                 </div>
                 <div class="panel-caption-box">
-                    <div class="panel-caption-title">Competitive DSA</div>
+                    <div class="panel-caption-title">Phase 4: Competitive Coding</div>
                     <div class="panel-caption-text">Algo Arena Stage 3 Cleared (Top 10) & 70+ LeetCode problems solved.</div>
+                    <div class="panel-explanation">
+                        <strong>Speech Cue:</strong> "Ranked Top 10 in Algo Arena (Stage 3 cleared). Solved 70+ problems on LeetCode & HackerRank focusing on DSA."
+                    </div>
                     <div class="panel-tags">
                         <span class="panel-tag-chip">Algo Arena Top 10</span>
                         <span class="panel-tag-chip">70+ LeetCode</span>
@@ -286,8 +316,11 @@
                     <img src="assets/comic_5.png" alt="Panel 5: Project" class="panel-img">
                 </div>
                 <div class="panel-caption-box">
-                    <div class="panel-caption-title">Featured Projects</div>
+                    <div class="panel-caption-title">Phase 5: Engineering Projects</div>
                     <div class="panel-caption-text">Air Quality ML System, Bharat Jago News Portal, LPU Roomie-Match UI.</div>
+                    <div class="panel-explanation">
+                        <strong>Speech Cue:</strong> "Engineered Air Quality ML prediction model, Cognitia finalist news portal (Bharat Jago), and Roomie-Match hostel UI."
+                    </div>
                     <div class="panel-tags">
                         <span class="panel-tag-chip">Air Quality ML</span>
                         <span class="panel-tag-chip">Bharat Jago</span>
@@ -302,8 +335,11 @@
                     <img src="assets/comic_6.png" alt="Panel 6: Achievements" class="panel-img">
                 </div>
                 <div class="panel-caption-box">
-                    <div class="panel-caption-title">Recognitions & Certs</div>
+                    <div class="panel-caption-title">Phase 6: Recognitions & Certs</div>
                     <div class="panel-caption-text">Cognitia Top 5 Finalist & 7 Verified Certifications (Infosys AI, German A1).</div>
+                    <div class="panel-explanation">
+                        <strong>Speech Cue:</strong> "Top 5 Finalist at Cognitia Hackathon. Holds 7 verified certs including Infosys AI, German Deutsch A1, and Saylor C++."
+                    </div>
                     <div class="panel-tags">
                         <span class="panel-tag-chip">Cognitia Top 5</span>
                         <span class="panel-tag-chip">7 Real Certs</span>
@@ -318,8 +354,11 @@
                     <img src="assets/comic_7.png" alt="Panel 7: Strengths" class="panel-img">
                 </div>
                 <div class="panel-caption-box">
-                    <div class="panel-caption-title">Core Value Proposition</div>
+                    <div class="panel-caption-title">Phase 7: Value Proposition</div>
                     <div class="panel-caption-text">High academic discipline (9.6 CGPA), quick learning agility & teamwork.</div>
+                    <div class="panel-explanation">
+                        <strong>Speech Cue:</strong> "Brings 9.6 CGPA academic reliability, competitive coding precision, and collaborative hackathon execution."
+                    </div>
                     <div class="panel-tags">
                         <span class="panel-tag-chip">Adaptable</span>
                         <span class="panel-tag-chip">Problem Solver</span>
@@ -334,8 +373,11 @@
                     <img src="assets/comic_8.png" alt="Panel 8: Goal" class="panel-img">
                 </div>
                 <div class="panel-caption-box">
-                    <div class="panel-caption-title">Career Goal</div>
+                    <div class="panel-caption-title">Phase 8: Career Vision</div>
                     <div class="panel-caption-text">Aspiration: Lead Artificial Intelligence & Machine Learning Software Engineer.</div>
+                    <div class="panel-explanation">
+                        <strong>Speech Cue:</strong> "Aspire to join innovative tech leaders as an AI & ML Engineer to build scalable intelligent applications."
+                    </div>
                     <div class="panel-tags">
                         <span class="panel-tag-chip">AI Engineer</span>
                         <span class="panel-tag-chip">ML Specialist</span>
