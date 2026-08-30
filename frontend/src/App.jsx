@@ -84,6 +84,66 @@ const FALLBACK_PRODUCTS = [
   },
   {
     id: 'p3',
+    title: 'L298N Dual Motor Driver Module',
+    description: 'Heavy duty motor driver module capable of driving 2 DC motors. Tested at Block 34 Hub.',
+    category_id: 3,
+    condition: 'gently_used',
+    price: 180.0,
+    market_price: 300.0,
+    age_months: 3,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Rohan Verma (LPU Student)',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=400'
+  },
+  {
+    id: 'p4',
+    title: 'SG90 Micro Servo Motors (Pack of 2)',
+    description: '9g mini micro servo motors for RC robot arm project. Brand new in box.',
+    category_id: 3,
+    condition: 'new',
+    price: 220.0,
+    market_price: 380.0,
+    age_months: 1,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Rohan Verma (LPU Student)',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1563770660941-20978e870e26?w=400'
+  },
+  {
+    id: 'p5',
+    title: '0.96 inch I2C OLED Display Module (128x64)',
+    description: 'Blue/Yellow dual color OLED screen module for microcontrollers. Crisp display output.',
+    category_id: 2,
+    condition: 'like_new',
+    price: 250.0,
+    market_price: 420.0,
+    age_months: 2,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Rohan Verma (LPU Student)',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400'
+  },
+  {
+    id: 'p6',
+    title: 'Breadboard + 65 Pcs Jumper Wires Combo',
+    description: 'Solderless MB-102 breadboard with 830 tie points and full pack of male-to-male jumper wires.',
+    category_id: 4,
+    condition: 'gently_used',
+    price: 190.0,
+    market_price: 350.0,
+    age_months: 5,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Rohan Verma (LPU Student)',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=400'
+  },
+  {
+    id: 'p7',
     title: 'Smart Home Automation System (IoT & Bluetooth Control)',
     description: 'Complete pre-built 4th semester major project. Features NodeMCU ESP8266, 4-channel Relay board, Bluetooth HC-05 module, custom android app source code, circuit schematic diagram, and PPT presentation slides included!',
     category_id: 5,
@@ -98,7 +158,22 @@ const FALLBACK_PRODUCTS = [
     image_url: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=400'
   },
   {
-    id: 'p4',
+    id: 'p8',
+    title: 'Automatic Obstacle Avoiding & Line Follower Robot',
+    description: 'Pre-assembled final semester robotics project with Arduino Uno, L298N driver, 2x IR sensors, HC-SR04 Ultrasonic sensor, acrylic chassis, and tested C++ source code.',
+    category_id: 5,
+    condition: 'gently_used',
+    price: 1850.0,
+    market_price: 2900.0,
+    age_months: 2,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Admin Vansh Saini',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400'
+  },
+  {
+    id: 'p9',
     title: 'Automatic Smart Irrigation Controller System (Soil Moisture + Water Pump)',
     description: 'Complete pre-assembled 3rd/4th semester major project. Automatically detects soil dryness using capacitive soil moisture sensor and triggers 5V mini submersible water pump via relay module. Includes Arduino Uno board, soil sensor, 1-channel relay, 5V water pump + pipe, 16x2 LCD status display, tested C++ source code, circuit schematic diagram, and lab report documentation!',
     category_id: 5,
@@ -111,6 +186,25 @@ const FALLBACK_PRODUCTS = [
     seller_name: 'Admin Vansh Saini',
     verification_status: 'verified',
     image_url: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400'
+  }
+];
+
+const FALLBACK_COMBOS = [
+  {
+    id: 'c1',
+    title: 'Basic Robotics Starter Combo Kit',
+    description: 'Includes Arduino Uno R3, L298N Motor Driver, 2x BO Motors, Robotic Chassis, and Jumper Wires package.',
+    price: 850.0,
+    image_url: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=400',
+    components: '1x Arduino Uno R3\n1x L298N Motor Driver Module\n2x Dual-Shaft BO Motors + Wheels\n1x 2WD Robot Chassis\n1x 40-pin Jumper Wire Ribbon'
+  },
+  {
+    id: 'c2',
+    title: 'IoT Home Automation Starter Kit',
+    description: 'Includes NodeMCU ESP8266 Wi-Fi Module, 4-Channel Relay Board, Ultrasonic Sensor, OLED Display, and Breadboard Wire Bundle.',
+    price: 1450.0,
+    image_url: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=400',
+    components: '1x NodeMCU ESP8266 Wi-Fi Board\n1x 4-Channel 5V Relay Module\n1x 0.96 OLED Display (I2C)\n1x HC-SR04 Ultrasonic Distance Sensor\n1x Breadboard + 65 Wire Jumper Bundle'
   }
 ];
 
@@ -397,9 +491,13 @@ export default function App() {
   const fetchCombos = async () => {
     try {
       const data = await apiRequest('/admin/combos');
-      setCombos(data);
+      if (Array.isArray(data) && data.length > 0) {
+        setCombos(data);
+      } else {
+        setCombos(FALLBACK_COMBOS);
+      }
     } catch (err) {
-      console.error(err);
+      setCombos(FALLBACK_COMBOS);
     }
   };
 
