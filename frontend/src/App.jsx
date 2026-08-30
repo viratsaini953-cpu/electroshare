@@ -868,7 +868,8 @@ export default function App() {
 
   // 5. Checkout and payment flow
   const handleOrderInitiation = (type) => {
-    if (!user) {
+    if (!user || user.id === 'guest' || user.role === 'guest') {
+      showToast('🔒 Please sign in with your 10-digit mobile number to place an order!', 'error');
       setAuthOpen(true);
       return;
     }
