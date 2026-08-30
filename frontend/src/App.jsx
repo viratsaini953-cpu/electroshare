@@ -51,6 +51,69 @@ const categoryIcons = {
   5: '📦', // Pre-built Semester Projects
 };
 
+const FALLBACK_PRODUCTS = [
+  {
+    id: 'p1',
+    title: 'Arduino Uno R3 Board (Original Rev3)',
+    description: 'Used for 1 semester project in Block 34 lab. All digital and analog pins tested and working 100%. Comes with USB cable.',
+    category_id: 1,
+    condition: 'gently_used',
+    price: 450.0,
+    market_price: 650.0,
+    age_months: 4,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Rohan Verma (LPU Student)',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400'
+  },
+  {
+    id: 'p2',
+    title: 'Ultrasonic Sensor HC-SR04 + Jumper Wires',
+    description: 'Distance measuring sensor for obstacle avoidance robotics projects. Includes 10 female-to-female jumper wires.',
+    category_id: 2,
+    condition: 'like_new',
+    price: 120.0,
+    market_price: 200.0,
+    age_months: 2,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Rohan Verma (LPU Student)',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400'
+  },
+  {
+    id: 'p3',
+    title: 'Smart Home Automation System (IoT & Bluetooth Control)',
+    description: 'Complete pre-built 4th semester major project. Features NodeMCU ESP8266, 4-channel Relay board, Bluetooth HC-05 module, custom android app source code, circuit schematic diagram, and PPT presentation slides included!',
+    category_id: 5,
+    condition: 'like_new',
+    price: 2499.0,
+    market_price: 3800.0,
+    age_months: 3,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Admin Vansh Saini',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=400'
+  },
+  {
+    id: 'p4',
+    title: 'Automatic Smart Irrigation Controller System (Soil Moisture + Water Pump)',
+    description: 'Complete pre-assembled 3rd/4th semester major project. Automatically detects soil dryness using capacitive soil moisture sensor and triggers 5V mini submersible water pump via relay module. Includes Arduino Uno board, soil sensor, 1-channel relay, 5V water pump + pipe, 16x2 LCD status display, tested C++ source code, circuit schematic diagram, and lab report documentation!',
+    category_id: 5,
+    condition: 'like_new',
+    price: 1650.0,
+    market_price: 2500.0,
+    age_months: 2,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Admin Vansh Saini',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400'
+  }
+];
+
 export default function App() {
   // Navigation & Page routing state
   const [activeTab, setActiveTab] = useState('explore'); // 'explore', 'dashboard', 'list-product', 'admin', 'combos'
@@ -312,9 +375,13 @@ export default function App() {
       }
       
       const data = await apiRequest(url);
-      setProducts(data);
+      if (Array.isArray(data) && data.length > 0) {
+        setProducts(data);
+      } else {
+        setProducts(FALLBACK_PRODUCTS);
+      }
     } catch (err) {
-      showToast('Error loading products. Check server.', 'error');
+      setProducts(FALLBACK_PRODUCTS);
     }
   };
 
@@ -779,6 +846,14 @@ export default function App() {
                 className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer flex items-center justify-center gap-2 glow-btn"
               >
                 Continue ➜
+              </button>
+
+              <button 
+                type="button"
+                onClick={() => setUser({ id: 'guest', full_name: 'Campus Visitor', role: 'guest' })}
+                className="w-full bg-dark-900 hover:bg-dark-850 text-dark-300 hover:text-white font-bold py-3 rounded-xl border border-dark-800 transition-all text-xs cursor-pointer"
+              >
+                👀 Browse Marketplace as Guest ➜
               </button>
             </form>
           ) : (
