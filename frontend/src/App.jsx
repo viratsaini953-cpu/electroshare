@@ -370,7 +370,6 @@ export default function App() {
   // Admin section
   const [allOrders, setAllOrders] = useState([]);
   const [adminNotes, setAdminNotes] = useState('');
-  const [combos, setCombos] = useState([]);
   const [comboSelectedProducts, setComboSelectedProducts] = useState([]);
   const [comboTitle, setComboTitle] = useState('');
   const [comboDesc, setComboDesc] = useState('');
