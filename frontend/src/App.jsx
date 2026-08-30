@@ -186,6 +186,81 @@ const FALLBACK_PRODUCTS = [
     seller_name: 'Admin Vansh Saini',
     verification_status: 'verified',
     image_url: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400'
+  },
+  {
+    id: 'p10',
+    title: 'ESP32 Wi-Fi + Bluetooth Dual-Core Microcontroller Board',
+    description: '30-pin ESP-WROOM-32 development board with built-in Wi-Fi and BLE Bluetooth for IoT projects. Fully pin-tested.',
+    category_id: 1,
+    condition: 'new',
+    price: 380.0,
+    market_price: 600.0,
+    age_months: 1,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Rohan Verma (LPU Student)',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400'
+  },
+  {
+    id: 'p11',
+    title: 'DHT11 Temperature & Humidity Sensor Module',
+    description: 'Digital humidity and temperature sensor with jumper cable. Ideal for weather station lab experiments.',
+    category_id: 2,
+    condition: 'like_new',
+    price: 90.0,
+    market_price: 160.0,
+    age_months: 2,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Rohan Verma (LPU Student)',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400'
+  },
+  {
+    id: 'p12',
+    title: 'RFID RC522 Reader Module + Smart Cards & Key Fobs',
+    description: '13.56MHz SPI RFID reader module with 1x S50 White Card and 1x Key Fob for security access projects.',
+    category_id: 2,
+    condition: 'gently_used',
+    price: 220.0,
+    market_price: 390.0,
+    age_months: 3,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Rohan Verma (LPU Student)',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1563770660941-20978e870e26?w=400'
+  },
+  {
+    id: 'p13',
+    title: 'RFID Attendance & Automated Door Lock Security System',
+    description: 'Complete pre-built 5th semester major project. Features Arduino Uno, RFID RC522 Reader, 12V Solenoid Door Lock, I2C LCD Screen, Buzzer, and C++ source code.',
+    category_id: 5,
+    condition: 'like_new',
+    price: 1950.0,
+    market_price: 3200.0,
+    age_months: 2,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Admin Vansh Saini',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=400'
+  },
+  {
+    id: 'p14',
+    title: 'IoT Air Quality & Weather Monitoring Station (Blynk Sync)',
+    description: 'Pre-assembled major IoT project with ESP8266, DHT11, MQ-135 Gas Sensor, OLED display, and mobile app sync dashboard.',
+    category_id: 5,
+    condition: 'like_new',
+    price: 2200.0,
+    market_price: 3500.0,
+    age_months: 3,
+    listing_type: 'sale',
+    status: 'available',
+    seller_name: 'Admin Vansh Saini',
+    verification_status: 'verified',
+    image_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=400'
   }
 ];
 
@@ -211,7 +286,7 @@ const FALLBACK_COMBOS = [
 export default function App() {
   // Navigation & Page routing state
   const [activeTab, setActiveTab] = useState('explore'); // 'explore', 'dashboard', 'list-product', 'admin', 'combos'
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({ id: 'guest', full_name: 'Campus Visitor', role: 'guest' });
   const [token, setToken] = useState(localStorage.getItem('token') || '');
 
   // Auth Modal & Password Authentication State
