@@ -1,4 +1,14 @@
-const API_BASE_URL = 'https://electroshare-backend.onrender.com/api/v1';
+const isLocal = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname.startsWith('172.') ||
+  window.location.hostname.startsWith('10.') ||
+  window.location.hostname.startsWith('192.')
+);
+
+const API_BASE_URL = isLocal
+  ? `http://${window.location.hostname}:8000/api/v1`
+  : 'https://electroshare-backend.onrender.com/api/v1';
 
 export const apiRequest = async (endpoint, method = 'GET', body = null, token = null) => {
   const headers = {

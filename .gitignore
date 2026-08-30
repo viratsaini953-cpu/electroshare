@@ -1,13 +1,11 @@
-# Python
-backend/venv/
-**/__pycache__/
-backend/*.db
-backend/.env
-
-# Node / React
-frontend/node_modules/
-frontend/dist/
-
-# OS/System
+node_modules
+venv
+.venv
+__pycache__
+*.pyc
+.env
+dist
+build
 .DS_Store
-Thumbs.db
+backend/mingit
+backend/mingit.zip

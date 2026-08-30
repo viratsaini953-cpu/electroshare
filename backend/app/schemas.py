@@ -81,7 +81,7 @@ class ProductResponse(BaseModel):
     amazon_url: Optional[str] = None
     flipkart_url: Optional[str] = None
     other_url: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

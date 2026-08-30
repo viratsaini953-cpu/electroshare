@@ -206,3 +206,18 @@ def delete_combo(
     db.commit()
     return {"message": "Combo kit deleted successfully"}
 
+@router.delete("/orders/{id}", status_code=status.HTTP_200_OK)
+def delete_order(
+    id: str,
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(get_current_admin)
+):
+    order = db.query(models.Order).filter(models.Order.id == id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+        
+    db.query(models.EscrowTransaction).filter(models.EscrowTransaction.order_id == id).delete(synchronize_session=False)
+    db.delete(order)
+    db.commit()
+    return {"message": "Order deleted successfully by Admin"}
+

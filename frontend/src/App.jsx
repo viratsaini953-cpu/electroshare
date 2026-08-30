@@ -58,7 +58,7 @@ export default function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
 
   // Auth Modal & Password Authentication State
-  const [authOpen, setAuthOpen] = useState(!localStorage.getItem('token'));
+  const [authOpen, setAuthOpen] = useState(false);
   const [authTarget, setAuthTarget] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authConfirmPassword, setAuthConfirmPassword] = useState('');
@@ -77,6 +77,7 @@ export default function App() {
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [conditionFilter, setConditionFilter] = useState('');
+  const [sortBy, setSortBy] = useState('featured');
   const [verifiedFilter, setVerifiedFilter] = useState(false);
   const [typeFilter, setTypeFilter] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -217,8 +218,9 @@ export default function App() {
   };
 
 
-  // 1. Fetch startup details
+  // 1. Fetch startup details & load saved user session
   useEffect(() => {
+    fetchProducts();
     fetchCategories();
     fetchCombos();
     if (token) {
@@ -254,6 +256,20 @@ export default function App() {
       setSearchSuggestions([]);
     }
   }, [searchQuery, products]);
+
+  // Close modals on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setCheckoutOpen(false);
+        setAuthOpen(false);
+        setEditProfileOpen(false);
+        setIsRequestModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Live pricing recommendations
   useEffect(() => {
@@ -547,6 +563,17 @@ export default function App() {
     }
   };
 
+  const handleAdminDeleteOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to permanently delete this customer order?")) return;
+    try {
+      await apiRequest(`/admin/orders/${orderId}`, 'DELETE');
+      showToast('Customer order deleted successfully!');
+      fetchDashboardData();
+    } catch (err) {
+      showToast(err.message, 'error');
+    }
+  };
+
   // 5. Checkout and payment flow
   const handleOrderInitiation = (type) => {
     if (!user) {
@@ -695,6 +722,8 @@ export default function App() {
     }
   };
 
+
+
   if (!user) {
     return (
       <div className="min-h-screen bg-dark-950 flex items-center justify-center p-4 relative overflow-hidden">
@@ -717,7 +746,7 @@ export default function App() {
             <span className="text-4xl bg-brand-500/10 p-4 rounded-2xl inline-block">🔑</span>
             <h2 className="text-2xl font-extrabold text-white tracking-tight">Sign In to ElectroShare</h2>
             <p className="text-xs text-dark-400 max-w-xs mx-auto">
-              Hyperlocal Campus Hardware Marketplace. Enter your mobile phone number (or admin email) to continue.
+              Hyperlocal Campus Hardware Marketplace. Enter your mobile phone number to continue.
             </p>
           </div>
 
@@ -728,20 +757,20 @@ export default function App() {
           )}
 
           {!isPhoneChecked ? (
-            /* PHASE 1: Enter Phone Number or Admin Email */
+            /* PHASE 1: Enter Phone Number */
             <form onSubmit={handleCheckPhone} className="space-y-5">
               <div>
-                <label className="text-xs text-dark-300 font-semibold block mb-2">Phone Number / Admin Email</label>
+                <label className="text-xs text-dark-300 font-semibold block mb-2">Mobile Phone Number / Admin Email</label>
                 <input 
                   type="text"
                   required
                   value={authTarget}
                   onChange={(e) => setAuthTarget(e.target.value)}
-                  placeholder="Enter phone number or email"
+                  placeholder="Enter 10-digit mobile number"
                   className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
                 />
                 <span className="text-[10px] text-dark-500 mt-2 block">
-                  Students use standard 10-digit mobile numbers; admins can use their email.
+                  Enter your registered 10-digit mobile number to proceed.
                 </span>
               </div>
 
@@ -753,7 +782,7 @@ export default function App() {
               </button>
             </form>
           ) : (
-            /* PHASE 2: Login or Register (Set Password) */
+            /* PHASE 2: Password Login or OTP Registration */
             <div className="space-y-5">
               <div className="bg-dark-900/60 border border-dark-850 rounded-2xl p-4 flex items-center justify-between">
                 <div>
@@ -772,13 +801,13 @@ export default function App() {
                 </button>
               </div>
 
-              {!isRegistered ? (
+              {!isRegistered && !["9389047361", "9389047261", "9259558081"].includes(authTarget.trim()) ? (
                 !isPhoneVerified && !authTarget.includes('@') ? (
                   /* Verify OTP Form */
                   <form onSubmit={handleVerifyOtp} className="space-y-4">
                     <div className="text-center p-3 bg-brand-500/5 border border-brand-500/15 rounded-xl">
                       <span className="text-xs text-brand-300 font-semibold block">📱 Verify Mobile Number</span>
-                      <span className="text-[10px] text-dark-400 block mt-0.5">We sent a 6-digit verification code to your phone.</span>
+                      <span className="text-[10px] text-dark-400 block mt-0.5">Enter verification OTP code (Master OTP: 123456)</span>
                     </div>
 
                     <div>
@@ -787,27 +816,11 @@ export default function App() {
                         type="text"
                         required
                         maxLength={6}
-                        pattern="\d{6}"
                         value={otpCode}
                         onChange={(e) => setOtpCode(e.target.value)}
-                        placeholder="Enter 6-digit OTP code"
+                        placeholder="Enter 6-digit OTP"
                         className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors text-center font-mono font-bold tracking-widest text-lg"
                       />
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs pt-1">
-                      <span className="text-dark-500">Didn't receive code?</span>
-                      {otpCountdown > 0 ? (
-                        <span className="text-dark-400 font-semibold">Resend in {otpCountdown}s</span>
-                      ) : (
-                        <button 
-                          type="button" 
-                          onClick={handleSendOtp}
-                          className="text-brand-400 hover:text-brand-300 font-bold underline cursor-pointer"
-                        >
-                          Resend OTP
-                        </button>
-                      )}
                     </div>
 
                     <button 
@@ -821,8 +834,8 @@ export default function App() {
                   /* Register Flow (Set Password) */
                   <form onSubmit={handleRegister} className="space-y-4">
                     <div className="text-center p-3 bg-brand-500/5 border border-brand-500/15 rounded-xl">
-                      <span className="text-xs text-brand-300 font-semibold block">🆕 Phone Verified Successfully!</span>
-                      <span className="text-[10px] text-dark-400 block mt-0.5">Please set a secure password for your account.</span>
+                      <span className="text-xs text-brand-300 font-semibold block">🆕 Set Account Password</span>
+                      <span className="text-[10px] text-dark-400 block mt-0.5">Please set a secure password for your profile.</span>
                     </div>
 
                     <div>
@@ -846,7 +859,7 @@ export default function App() {
                         minLength="6"
                         value={authConfirmPassword}
                         onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                        placeholder="Repeat your password"
+                        placeholder="Repeat password"
                         className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
                       />
                     </div>
@@ -863,7 +876,7 @@ export default function App() {
                 /* Login Flow */
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div>
-                    <label className="text-xs text-dark-300 font-semibold block mb-1.5">Enter Password</label>
+                    <label className="text-xs text-dark-300 font-semibold block mb-1.5">Enter Account Password</label>
                     <input 
                       type="password"
                       required
@@ -878,7 +891,7 @@ export default function App() {
                     type="submit"
                     className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer glow-btn"
                   >
-                    Sign In
+                    Sign In ➜
                   </button>
                 </form>
               )}
@@ -900,6 +913,17 @@ export default function App() {
           <span>{toast.message}</span>
         </div>
       )}
+
+      {/* Top E-Commerce Announcement Ticker */}
+      <div className="bg-gradient-to-r from-brand-600 via-amber-600 to-brand-600 text-white text-[11px] font-bold py-1.5 px-4 text-center tracking-wide flex items-center justify-center gap-4 shadow-sm">
+        <span>⚡ Campus Hub Verified</span>
+        <span className="hidden sm:inline">•</span>
+        <span className="hidden sm:inline">🚚 100% Cash on Delivery</span>
+        <span className="hidden md:inline">•</span>
+        <span className="hidden md:inline">🛡️ Hardware Tested at Block 34</span>
+        <span className="hidden lg:inline">•</span>
+        <span className="hidden lg:inline">📦 Instant Escrow Refund Safety</span>
+      </div>
 
       {/* Header */}
       <header className="glass-panel border-b border-dark-800 sticky top-0 z-30 transition-all duration-300">
@@ -949,7 +973,7 @@ export default function App() {
 
           <div className="flex items-center gap-3">
             {user ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 {/* Dashboard Profile */}
                 <button 
                   onClick={() => { setActiveTab('dashboard'); setSelectedProduct(null); }}
@@ -958,6 +982,16 @@ export default function App() {
                   }`}
                 >
                   <span>👋 {user?.full_name || 'User'}</span>
+                  {user?.role === 'admin' && (
+                    <span className="bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-black px-1.5 py-0.5 rounded uppercase">Admin</span>
+                  )}
+                </button>
+
+                <button 
+                  onClick={() => setAuthOpen(true)}
+                  className="text-xs bg-dark-900 hover:bg-dark-850 text-brand-400 border border-dark-800 font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 cursor-pointer"
+                >
+                  🔑 Login / Switch Account
                 </button>
 
                 <button 
@@ -970,7 +1004,7 @@ export default function App() {
             ) : (
               <button 
                 onClick={() => setAuthOpen(true)}
-                className="bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium px-5 py-2 rounded-xl transition-all shadow-lg shadow-brand-500/20 glow-btn"
+                className="bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium px-5 py-2 rounded-xl transition-all shadow-lg shadow-brand-500/20 glow-btn cursor-pointer"
               >
                 Sign In
               </button>
@@ -1032,7 +1066,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Filter controls */}
+            {/* Filter & Sort controls */}
             <div className="glass-panel border border-dark-800 rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="relative flex-1 flex">
                 <div className="relative flex-grow">
@@ -1050,20 +1084,23 @@ export default function App() {
                     <Icons.Search />
                   </div>
                   
+                  {/* Autocomplete Dropdown */}
                   {showSuggestions && searchSuggestions.length > 0 && (
-                    <div className="absolute left-0 right-0 top-full mt-1 bg-dark-900 border border-dark-800 rounded-xl overflow-hidden shadow-2xl z-30">
+                    <div className="absolute left-0 right-0 top-full mt-1 bg-dark-900 border border-dark-800 rounded-xl shadow-2xl z-50 overflow-hidden">
                       {searchSuggestions.map((item) => (
                         <div 
                           key={item.id}
-                          onClick={() => {
-                            setSearchQuery(item.title);
-                            setShowSuggestions(false);
+                          onMouseDown={() => {
                             setSelectedProduct(item);
+                            setShowSuggestions(false);
                           }}
-                          className="px-4 py-2.5 hover:bg-dark-850 cursor-pointer flex items-center justify-between text-xs transition-colors"
+                          className="p-3 hover:bg-dark-800 cursor-pointer flex items-center justify-between border-b border-dark-850 last:border-0"
                         >
-                          <span className="font-semibold text-white">{item.title}</span>
-                          <span className="text-[10px] text-brand-400 bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded font-mono">₹{item.price}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-white">{item.title}</span>
+                            <span className="text-[10px] text-dark-400 bg-dark-950 px-2 py-0.5 rounded capitalize">{item.condition.replace('_', ' ')}</span>
+                          </div>
+                          <span className="text-xs font-bold text-brand-400">₹{item.price}</span>
                         </div>
                       ))}
                     </div>
@@ -1077,7 +1114,7 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Advanced Filters */}
+              {/* Advanced Filters & Sorting */}
               <div className="flex flex-wrap items-center gap-3">
                 <select 
                   value={conditionFilter}
@@ -1090,7 +1127,16 @@ export default function App() {
                   <option value="heavily_used">Heavily Used</option>
                 </select>
 
-
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-dark-900 border border-dark-800 rounded-xl px-3 py-2 text-xs text-dark-300 outline-none focus:border-brand-500 transition-colors font-semibold"
+                >
+                  <option value="featured">Sort: Featured</option>
+                  <option value="price_low">Price: Low to High</option>
+                  <option value="price_high">Price: High to Low</option>
+                  <option value="discount">Highest Savings / Discount</option>
+                </select>
 
                 <label className="flex items-center gap-2 cursor-pointer select-none border border-dark-800 bg-dark-900/40 rounded-xl px-3 py-2 text-xs text-dark-300 hover:bg-dark-800/40 transition-colors">
                   <input 
@@ -1143,86 +1189,135 @@ export default function App() {
               })}
             </div>
 
-            {/* Catalog Grid */}
-            {products.filter(prod => !selectedCategory || prod.category?.id == selectedCategory).length === 0 ? (
-              <div className="text-center py-16 bg-dark-900/20 border border-dark-800 rounded-3xl space-y-3">
-                <span className="text-3xl">🔌</span>
-                <h3 className="text-lg font-bold text-white">No hardware listings match your criteria</h3>
-                <p className="text-dark-400 text-xs max-w-xs mx-auto">Try clearing search phrases, changing filters, or upload your own component to sell/rent!</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.filter(prod => !selectedCategory || prod.category?.id == selectedCategory).map((prod) => (
-                  <div 
-                    key={prod.id}
-                    onClick={() => setSelectedProduct(prod)}
-                    className="glass-card rounded-2xl overflow-hidden cursor-pointer flex flex-col group"
-                  >
-                    {/* Image panel */}
-                    <div className="h-44 bg-dark-950 relative overflow-hidden flex items-center justify-center">
-                      <img 
-                        src={getFirstImage(prod.image_url)} 
-                        alt={prod.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                          e.target.src = "https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400";
-                        }}
-                      />
+            {/* Catalog Grid (With Amazon/Flipkart Badge Upgrades) */}
+            {(() => {
+              let filtered = products.filter(prod => !selectedCategory || prod.category?.id == selectedCategory);
+              if (sortBy === 'price_low') {
+                filtered = [...filtered].sort((a, b) => a.price - b.price);
+              } else if (sortBy === 'price_high') {
+                filtered = [...filtered].sort((a, b) => b.price - a.price);
+              } else if (sortBy === 'discount') {
+                filtered = [...filtered].sort((a, b) => {
+                  const discA = a.market_price ? ((a.market_price - a.price) / a.market_price) : 0;
+                  const discB = b.market_price ? ((b.market_price - b.price) / b.market_price) : 0;
+                  return discB - discA;
+                });
+              }
 
-                      {/* Admin Delete Option */}
-                      {user?.role === 'admin' && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteProduct(prod.id);
-                          }}
-                          className="absolute top-2.5 left-2.5 bg-red-600/90 hover:bg-red-700 text-white border border-red-500 text-[10px] font-bold px-2.5 py-1 rounded-lg z-20 flex items-center gap-1 transition-colors duration-150 cursor-pointer"
-                          title="Delete product listing"
-                        >
-                          🗑️ Delete
-                        </button>
-                      )}
-                      
-                      {/* Price Banner */}
-                      <div className="absolute bottom-2.5 left-2.5 bg-dark-950/85 backdrop-blur-md px-2.5 py-1 rounded-lg border border-dark-800 flex flex-col">
-                        <span className="text-sm font-extrabold text-brand-400">₹{prod.price}</span>
-                      </div>
-
-                      {/* Verification Status Badge */}
-                      {prod.verification_status === 'verified' && (
-                        <div className="absolute top-2.5 right-2.5 bg-emerald-950/90 text-emerald-400 border border-emerald-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                          Verified Working
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Meta Body */}
-                    <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
-                      <div>
-                        <div className="flex items-center justify-between text-[10px] text-dark-400 font-semibold mb-1">
-                          <span>{prod.category.name}</span>
-                          <span className="capitalize">{prod.condition.replace('_', ' ')}</span>
-                        </div>
-                        <h4 className="font-bold text-white text-sm group-hover:text-brand-400 transition-colors line-clamp-1">
-                          {prod.title}
-                        </h4>
-                        <p className="text-xs text-dark-300 line-clamp-2 mt-1">
-                          {prod.description}
-                        </p>
-                      </div>
-
-                      <div className="border-t border-dark-850 pt-2.5 flex items-center justify-between">
-                        <span className="text-[10px] text-dark-400">Seller: {prod.seller_name}</span>
-                        <span className="text-brand-500 font-semibold text-xs flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                          Details <Icons.ArrowRight />
-                        </span>
-                      </div>
-                    </div>
+              if (filtered.length === 0) {
+                return (
+                  <div className="text-center py-16 bg-dark-900/20 border border-dark-800 rounded-3xl space-y-3">
+                    <span className="text-3xl">🔌</span>
+                    <h3 className="text-lg font-bold text-white">No hardware listings match your criteria</h3>
+                    <p className="text-dark-400 text-xs max-w-xs mx-auto">Try clearing search phrases, changing filters, or upload your own component to sell!</p>
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {filtered.map((prod) => {
+                    const discountPercent = prod.market_price && prod.market_price > prod.price 
+                      ? Math.round(((prod.market_price - prod.price) / prod.market_price) * 100)
+                      : null;
+
+                    return (
+                      <div 
+                        key={prod.id}
+                        onClick={() => setSelectedProduct(prod)}
+                        className="glass-card rounded-2xl overflow-hidden cursor-pointer flex flex-col group relative border border-dark-800 hover:border-brand-500/50 transition-all duration-300 shadow-md"
+                      >
+                        {/* Discount Badge */}
+                        {discountPercent && (
+                          <div className="absolute top-2.5 left-2.5 z-20 bg-emerald-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow-md uppercase tracking-wider">
+                            {discountPercent}% OFF
+                          </div>
+                        )}
+
+                        {/* Image panel */}
+                        <div className="h-44 bg-dark-950 relative overflow-hidden flex items-center justify-center">
+                          <img 
+                            src={getFirstImage(prod.image_url)} 
+                            alt={prod.title} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              e.target.src = "https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400";
+                            }}
+                          />
+
+                          {/* Admin Delete Option */}
+                          {user?.role === 'admin' && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteProduct(prod.id);
+                              }}
+                              className="absolute top-2.5 right-2.5 bg-red-600/90 hover:bg-red-700 text-white border border-red-500 text-[10px] font-bold px-2 py-0.5 rounded-lg z-20 flex items-center gap-1 transition-colors cursor-pointer"
+                              title="Delete product listing"
+                            >
+                              🗑️ Delete
+                            </button>
+                          )}
+
+                          {/* Verification Status Badge */}
+                          {prod.verification_status === 'verified' && !user?.role === 'admin' && (
+                            <div className="absolute top-2.5 right-2.5 bg-emerald-950/90 text-emerald-400 border border-emerald-500/30 text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                              Verified
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Meta Body */}
+                        <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+                          <div>
+                            <div className="flex items-center justify-between text-[10px] text-dark-400 font-semibold mb-1">
+                              <span className="truncate max-w-[120px]">{prod.category?.name || 'Electronics'}</span>
+                              <span className="capitalize text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">{prod.condition.replace('_', ' ')}</span>
+                            </div>
+                            <h4 className="font-bold text-white text-sm group-hover:text-brand-400 transition-colors line-clamp-1">
+                              {prod.title}
+                            </h4>
+
+                            {/* Ratings & Hub Express Badge */}
+                            <div className="flex items-center justify-between mt-1.5">
+                              <div className="flex items-center gap-1 text-[11px] text-amber-400 font-bold">
+                                <span>★ 4.8</span>
+                                <span className="text-[10px] text-dark-500 font-normal">(18)</span>
+                              </div>
+                              <span className="text-[9px] bg-brand-500/10 text-brand-400 border border-brand-500/20 font-bold px-1.5 py-0.5 rounded">
+                                ⚡ Hub Express
+                              </span>
+                            </div>
+
+                            <p className="text-xs text-dark-300 line-clamp-2 mt-1.5 leading-relaxed">
+                              {prod.description}
+                            </p>
+                          </div>
+
+                          {/* Pricing & Amazon/Flipkart Style Price Box */}
+                          <div className="border-t border-dark-850 pt-2.5 flex items-center justify-between">
+                            <div>
+                              <div className="flex items-baseline gap-1.5">
+                                <span className="text-base font-extrabold text-brand-400">₹{prod.price}</span>
+                                {prod.market_price && prod.market_price > prod.price && (
+                                  <span className="text-[11px] text-dark-500 line-through font-semibold">₹{prod.market_price}</span>
+                                )}
+                              </div>
+                              <span className="text-[9px] text-dark-450 block truncate">Seller: {prod.seller_name}</span>
+                            </div>
+
+                            <button className="bg-brand-500/10 hover:bg-brand-500 text-brand-400 hover:text-white border border-brand-500/30 text-xs font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 group-hover:bg-brand-500 group-hover:text-white">
+                              View <Icons.ArrowRight />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -2006,6 +2101,13 @@ export default function App() {
                             >
                               ❌ Cancel & Refund
                             </button>
+                            <button 
+                              onClick={() => handleAdminDeleteOrder(ord.id)}
+                              className="bg-red-600/90 hover:bg-red-700 text-white border border-red-500 text-[10px] font-bold px-3.5 py-2 rounded-xl transition-all cursor-pointer shadow-md"
+                              title="Permanently delete order"
+                            >
+                              🗑️ Delete Order
+                            </button>
                           </div>
 
                           <div className="pt-2">
@@ -2265,18 +2367,34 @@ export default function App() {
 
       {/* MODAL 2: CHECKOUT ESCROW DETAIL MODAL */}
       {checkoutOpen && (
-        <div className="fixed inset-0 z-40 bg-dark-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="glass-panel border border-dark-800 rounded-3xl p-6 w-full max-w-lg space-y-5 relative">
-            <button 
-              onClick={() => setCheckoutOpen(false)}
-              className="absolute top-4 right-4 text-dark-400 hover:text-white"
-            >
-              ✕
-            </button>
-
-            <h3 className="text-lg font-extrabold text-white flex items-center gap-2 border-b border-dark-800 pb-3">
-              Confirm Escrow Trade <Icons.Verified />
-            </h3>
+        <div 
+          onClick={() => setCheckoutOpen(false)}
+          className="fixed inset-0 z-40 bg-dark-950/80 backdrop-blur-sm flex items-center justify-center p-4"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="glass-panel border border-dark-800 rounded-3xl p-6 w-full max-w-lg space-y-5 relative shadow-2xl"
+          >
+            <div className="flex items-center justify-between border-b border-dark-800 pb-3">
+              <button 
+                type="button"
+                onClick={() => setCheckoutOpen(false)}
+                className="text-xs font-bold bg-dark-900 hover:bg-dark-850 text-dark-300 hover:text-white px-3 py-1.5 rounded-xl border border-dark-800 flex items-center gap-1 transition-all cursor-pointer"
+              >
+                ⬅️ Back
+              </button>
+              <h3 className="text-base font-extrabold text-white flex items-center gap-2">
+                Confirm Escrow Trade <Icons.Verified />
+              </h3>
+              <button 
+                type="button"
+                onClick={() => setCheckoutOpen(false)}
+                className="text-dark-400 hover:text-white text-base font-bold w-7 h-7 rounded-full flex items-center justify-center hover:bg-dark-850 transition-colors cursor-pointer"
+                title="Close checkout window"
+              >
+                ✕
+              </button>
+            </div>
 
             <div className="space-y-3.5">
               <div className="flex justify-between items-start text-sm">
@@ -2335,19 +2453,90 @@ export default function App() {
                 </div>
               )}
 
-              {/* Payment Method Selection */}
-              <div className="space-y-2">
-                <label className="text-xs text-dark-400 font-semibold block">Select Payment Option</label>
-                <div className="bg-dark-900 border border-dark-800 rounded-xl p-3.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl">💵</span>
-                    <div className="text-left">
-                      <span className="text-xs font-bold text-white block">Cash on Delivery / Pay at Hub</span>
-                      <span className="text-[10px] text-dark-400">Pay cash when dropping/picking up at the Hub</span>
+              {/* Payment Method Selection (COD + UPI QR Option) */}
+              <div className="space-y-2.5">
+                <label className="text-xs text-dark-400 font-semibold block">Payment Method</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button 
+                    onClick={() => setCheckoutPaymentMethod('cod')}
+                    className={`p-3 rounded-xl border text-xs text-left transition-all ${
+                      checkoutPaymentMethod === 'cod' 
+                        ? 'border-brand-500 bg-brand-500/5 text-white' 
+                        : 'border-dark-800 bg-dark-900/35 text-dark-400'
+                    }`}
+                  >
+                    <span className="font-bold block">💵 Cash on Delivery</span>
+                    <span className="text-[10px] text-dark-500 mt-0.5 block">Pay at Block 34 Hub</span>
+                  </button>
+
+                  <button 
+                    onClick={() => setCheckoutPaymentMethod('upi')}
+                    className={`p-3 rounded-xl border text-xs text-left transition-all ${
+                      checkoutPaymentMethod === 'upi' 
+                        ? 'border-brand-500 bg-brand-500/5 text-white' 
+                        : 'border-dark-800 bg-dark-900/35 text-dark-400'
+                    }`}
+                  >
+                    <span className="font-bold block">📱 Direct UPI / QR Code</span>
+                    <span className="text-[10px] text-dark-500 mt-0.5 block">Scan & Pay via GPay/PhonePe</span>
+                  </button>
+                </div>
+
+                {checkoutPaymentMethod === 'upi' && (
+                  <div className="bg-dark-900 border border-dark-800 rounded-xl p-4 space-y-3.5 text-center">
+                    <div className="flex items-center justify-between text-xs font-bold text-white border-b border-dark-800 pb-2">
+                      <span>👤 Payee: Vansh Saini</span>
+                      <span className="text-emerald-400 font-extrabold text-sm">₹{selectedProduct.price}</span>
+                    </div>
+
+                    {/* QR Code Container */}
+                    <div className="w-44 h-44 bg-white p-2.5 rounded-2xl mx-auto border border-dark-700 shadow-xl overflow-hidden relative group">
+                      <img 
+                        src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`upi://pay?pa=9389047361@ybl&pn=Vansh Saini&am=${selectedProduct.price}&cu=INR`)}`}
+                        alt="UPI QR Code"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <span className="text-[10px] text-dark-400 block">Scan using PhonePe, GPay, Paytm or BHIM UPI</span>
+
+                    {/* UPI IDs List */}
+                    <div className="space-y-2 text-left">
+                      <div className="bg-dark-950 p-2.5 rounded-lg border border-dark-850 flex items-center justify-between text-xs">
+                        <div>
+                          <span className="text-[10px] text-dark-500 font-bold uppercase block">PhonePe UPI ID</span>
+                          <strong className="text-white font-mono">9389047361@ybl</strong>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText('9389047361@ybl');
+                            showToast('UPI ID 9389047361@ybl copied!');
+                          }}
+                          className="text-[10px] bg-brand-500/10 hover:bg-brand-500 text-brand-400 hover:text-white border border-brand-500/30 px-2.5 py-1 rounded-lg transition-colors font-bold"
+                        >
+                          Copy ID
+                        </button>
+                      </div>
+
+                      <div className="bg-dark-950 p-2.5 rounded-lg border border-dark-850 flex items-center justify-between text-xs">
+                        <div>
+                          <span className="text-[10px] text-dark-500 font-bold uppercase block">Alternate Axis UPI ID</span>
+                          <strong className="text-white font-mono">9389047361@axl</strong>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText('9389047361@axl');
+                            showToast('UPI ID 9389047361@axl copied!');
+                          }}
+                          className="text-[10px] bg-brand-500/10 hover:bg-brand-500 text-brand-400 hover:text-white border border-brand-500/30 px-2.5 py-1 rounded-lg transition-colors font-bold"
+                        >
+                          Copy ID
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <span className="text-[10px] bg-brand-500/10 border border-brand-500/30 text-brand-400 font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">COD Only</span>
-                </div>
+                )}
               </div>
 
               {/* Escrow warning banner */}
@@ -2534,6 +2723,181 @@ export default function App() {
                 Submit Custom Kit Request
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {/* AUTH LOGIN & REGISTER MODAL PORTAL */}
+      {authOpen && (
+        <div 
+          onClick={() => setAuthOpen(false)}
+          className="fixed inset-0 z-50 bg-dark-950/85 backdrop-blur-md flex items-center justify-center p-4"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="glass-panel border border-dark-800 rounded-3xl p-8 w-full max-w-md space-y-6 relative shadow-2xl"
+          >
+            <button 
+              onClick={() => setAuthOpen(false)}
+              className="absolute top-4 right-4 text-dark-400 hover:text-white text-base font-bold w-8 h-8 rounded-full flex items-center justify-center hover:bg-dark-850 transition-colors cursor-pointer"
+            >
+              ✕
+            </button>
+
+            <div className="text-center space-y-2">
+              <span className="text-4xl bg-brand-500/10 p-3 rounded-2xl inline-block">🔑</span>
+              <h2 className="text-2xl font-extrabold text-white tracking-tight">Sign In to ElectroShare</h2>
+              <p className="text-xs text-dark-400 max-w-xs mx-auto">
+                Hyperlocal Campus Marketplace. Enter your mobile number to access Admin or Student account.
+              </p>
+            </div>
+
+            {authMsg && (
+              <div className="bg-rose-500/5 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl text-center font-medium">
+                {authMsg}
+              </div>
+            )}
+
+            {!isPhoneChecked ? (
+              /* PHASE 1: Enter Phone Number */
+              <form onSubmit={handleCheckPhone} className="space-y-4">
+                <div>
+                  <label className="text-xs text-dark-300 font-semibold block mb-2">Mobile Phone Number / Admin Email</label>
+                  <input 
+                    type="text"
+                    required
+                    value={authTarget}
+                    onChange={(e) => setAuthTarget(e.target.value)}
+                    placeholder="Enter 10-digit mobile number"
+                    className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
+                  />
+                  <span className="text-[10px] text-dark-500 mt-2 block">
+                    Enter your registered 10-digit mobile number to proceed.
+                  </span>
+                </div>
+
+                <button 
+                  type="submit"
+                  className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer flex items-center justify-center gap-2 glow-btn"
+                >
+                  Continue ➜
+                </button>
+              </form>
+            ) : (
+              /* PHASE 2: Password Login or OTP Registration */
+              <div className="space-y-4">
+                <div className="bg-dark-900/60 border border-dark-850 rounded-2xl p-3.5 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] text-dark-500 font-bold uppercase block">Identifier</span>
+                    <span className="text-sm font-bold text-white font-mono">{authTarget}</span>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setIsPhoneChecked(false);
+                      setAuthPassword('');
+                      setAuthConfirmPassword('');
+                    }}
+                    className="text-xs text-brand-400 hover:text-brand-300 font-semibold underline cursor-pointer"
+                  >
+                    Change
+                  </button>
+                </div>
+
+                {!isRegistered && !["9389047361", "9389047261", "9259558081"].includes(authTarget.trim()) ? (
+                  !isPhoneVerified && !authTarget.includes('@') ? (
+                    /* Verify OTP Form */
+                    <form onSubmit={handleVerifyOtp} className="space-y-4">
+                      <div className="text-center p-3 bg-brand-500/5 border border-brand-500/15 rounded-xl">
+                        <span className="text-xs text-brand-300 font-semibold block">📱 Verify Mobile Number</span>
+                        <span className="text-[10px] text-dark-400 block mt-0.5">Use Master Verification Code: <strong className="text-white font-mono">123456</strong></span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-dark-300 font-semibold block mb-1.5">Verification Code (OTP)</label>
+                        <input 
+                          type="text"
+                          required
+                          maxLength={6}
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value)}
+                          placeholder="Enter 6-digit OTP (123456)"
+                          className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors text-center font-mono font-bold tracking-widest text-lg"
+                        />
+                      </div>
+
+                      <button 
+                        type="submit"
+                        className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer flex items-center justify-center gap-2 glow-btn"
+                      >
+                        Verify Code & Continue ➜
+                      </button>
+                    </form>
+                  ) : (
+                    /* Register Flow (Set Password) */
+                    <form onSubmit={handleRegister} className="space-y-4">
+                      <div className="text-center p-3 bg-brand-500/5 border border-brand-500/15 rounded-xl">
+                        <span className="text-xs text-brand-300 font-semibold block">🆕 Set Account Password</span>
+                        <span className="text-[10px] text-dark-400 block mt-0.5">Set a secure password for your student profile.</span>
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-dark-300 font-semibold block mb-1.5">Set Password</label>
+                        <input 
+                          type="password"
+                          required
+                          minLength="6"
+                          value={authPassword}
+                          onChange={(e) => setAuthPassword(e.target.value)}
+                          placeholder="At least 6 characters"
+                          className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs text-dark-300 font-semibold block mb-1.5">Confirm Password</label>
+                        <input 
+                          type="password"
+                          required
+                          minLength="6"
+                          value={authConfirmPassword}
+                          onChange={(e) => setAuthConfirmPassword(e.target.value)}
+                          placeholder="Repeat password"
+                          className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
+                        />
+                      </div>
+
+                      <button 
+                        type="submit"
+                        className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer glow-btn"
+                      >
+                        Set Password & Sign In
+                      </button>
+                    </form>
+                  )
+                ) : (
+                  /* Login Password Flow (Admins & Registered Users) */
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div>
+                      <label className="text-xs text-dark-300 font-semibold block mb-1.5">Enter Password</label>
+                      <input 
+                        type="password"
+                        required
+                        value={authPassword}
+                        onChange={(e) => setAuthPassword(e.target.value)}
+                        placeholder="Enter your account password"
+                        className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
+                      />
+                    </div>
+
+                    <button 
+                      type="submit"
+                      className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer glow-btn"
+                    >
+                      Sign In
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
