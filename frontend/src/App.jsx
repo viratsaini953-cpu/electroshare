@@ -308,7 +308,7 @@ const FALLBACK_CATEGORIES = [
 export default function App() {
   // Navigation & Page routing state
   const [activeTab, setActiveTab] = useState('explore'); // 'explore', 'dashboard', 'list-product', 'admin', 'combos'
-  const [user, setUser] = useState({ id: 'guest', full_name: 'Campus Visitor', role: 'guest' });
+  const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token') || '');
 
   // Auth Modal & Password Authentication State
@@ -1074,10 +1074,16 @@ export default function App() {
                 Continue ➜
               </button>
 
+              <div className="relative flex py-1 items-center">
+                <div className="flex-grow border-t border-dark-800"></div>
+                <span className="flex-shrink mx-3 text-[10px] text-dark-500 font-bold uppercase">OR</span>
+                <div className="flex-grow border-t border-dark-800"></div>
+              </div>
+
               <button 
                 type="button"
                 onClick={() => setUser({ id: 'guest', full_name: 'Campus Visitor', role: 'guest' })}
-                className="w-full bg-dark-900 hover:bg-dark-850 text-dark-300 hover:text-white font-bold py-3 rounded-xl border border-dark-800 transition-all text-xs cursor-pointer"
+                className="w-full bg-dark-900/90 hover:bg-dark-850 text-brand-400 hover:text-brand-300 font-extrabold py-3.5 rounded-xl border border-brand-500/30 transition-all text-xs cursor-pointer flex items-center justify-center gap-2 shadow-md hover:border-brand-500"
               >
                 👀 Browse Marketplace as Guest ➜
               </button>
