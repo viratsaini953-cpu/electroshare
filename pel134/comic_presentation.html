@@ -3,140 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vansh Saini | 8-Panel Portfolio Comic Strip Board</title>
+    <title>Vansh Saini | 8-Panel Official Comic Board Sheet</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Inter:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&family=Outfit:wght@600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
         body {
-            background-color: #121212;
-            color: #111111;
+            background-color: #0F172A;
+            color: #F8FAFC;
             font-family: 'Inter', sans-serif;
-            padding: 1.5rem 1rem;
+            padding: 2rem 1rem;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
-        .action-bar {
-            width: 100%;
-            max-width: 1300px;
-            margin-bottom: 1rem;
+        .container {
+            max-width: 1360px;
+            margin: 0 auto;
+        }
+
+        /* Top Header Control Banner */
+        .board-header {
+            background: #1E293B;
+            border: 3px solid #FACC15;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #1E1E1E;
-            padding: 0.8rem 1.2rem;
-            border-radius: 12px;
-            border: 2px solid #F5C842;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
         }
 
-        .action-title {
-            color: #F5C842;
+        .header-info h1 {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.2rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #FACC15;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.3rem;
         }
+
+        .header-info p {
+            color: #94A3B8;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .header-info strong { color: #FFFFFF; }
 
         .btn-print {
-            background: #F5C842;
+            background: #FACC15;
             color: #000000;
             border: none;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
+            padding: 0.75rem 1.4rem;
+            border-radius: 10px;
             font-family: 'Outfit', sans-serif;
             font-weight: 900;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 0.4rem;
-            transition: transform 0.2s ease;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
         }
 
         .btn-print:hover {
-            transform: scale(1.04);
+            background: #EAB308;
+            transform: translateY(-2px);
         }
 
-        /* VINTAGE COMIC POSTER CANVAS (MATCHING REFERENCE IMAGE EXACTLY) */
-        .comic-poster-canvas {
-            width: 100%;
-            max-width: 1300px;
-            background: #D5C7B0; /* Exact warm vintage paper background from sample */
-            border: 6px solid #1E1B18;
-            border-radius: 12px;
-            padding: 12px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
-        }
-
-        .comic-grid-layout {
+        /* 8-PANEL COMIC BOARD GRID */
+        .comic-board-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 1.5rem;
         }
 
-        @media (max-width: 1024px) {
-            .comic-grid-layout { grid-template-columns: repeat(2, 1fr); }
+        @media (max-width: 1100px) {
+            .comic-board-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
-        @media (max-width: 600px) {
-            .comic-grid-layout { grid-template-columns: 1fr; }
+        @media (max-width: 650px) {
+            .comic-board-grid { grid-template-columns: 1fr; }
         }
 
-        /* COMIC PANEL FRAME */
-        .comic-panel-frame {
+        .comic-panel-card {
             background: #FFFFFF;
-            border: 3.5px solid #1E1B18;
-            border-radius: 6px;
+            border: 4px solid #000000;
+            border-radius: 14px;
             overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.6);
             display: flex;
             flex-direction: column;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
-            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        /* EXACT YELLOW HEADER BANNER FROM REFERENCE SAMPLE */
-        .panel-header-yellow {
-            background: #F5C842;
+        .comic-panel-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(250, 204, 21, 0.35);
+            border-color: #FACC15;
+        }
+
+        /* Yellow Header Banner on Top of Each Panel */
+        .panel-yellow-banner {
+            background: #FACC15;
             color: #000000;
             font-family: 'Outfit', sans-serif;
             font-weight: 900;
             font-size: 1.15rem;
-            font-style: italic;
-            padding: 0.4rem 0.6rem;
-            border-bottom: 3.5px solid #1E1B18;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            padding: 0.6rem 0.8rem;
+            text-align: center;
+            border-bottom: 3.5px solid #000000;
             letter-spacing: 0.5px;
             text-transform: uppercase;
+            font-style: italic;
         }
 
-        .panel-num-circle {
-            background: #000000;
-            color: #F5C842;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            font-weight: 900;
-            font-style: normal;
-            flex-shrink: 0;
-        }
-
-        /* PANEL IMAGE CONTAINER */
-        .panel-image-wrapper {
+        /* Image Box */
+        .panel-img-box {
             position: relative;
             width: 100%;
             background: #FFFFFF;
@@ -144,157 +133,187 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            min-height: 260px;
         }
 
-        .panel-image-wrapper img {
+        .panel-img {
             width: 100%;
             height: auto;
             display: block;
             object-fit: contain;
         }
 
-        /* CAPTION FOOTER STRIP */
-        .panel-footer-caption {
-            background: #F8F5EE;
-            border-top: 2.5px solid #1E1B18;
-            padding: 0.6rem 0.8rem;
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: #1E1B18;
-            line-height: 1.4;
+        /* Clean Keyword Strip Below Each Panel */
+        .panel-keyword-strip {
+            background: #0F172A;
+            border-top: 3.5px solid #000000;
+            padding: 0.85rem 0.6rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.4rem;
+            flex-grow: 1;
+            align-content: flex-start;
         }
 
-        .panel-footer-caption strong {
-            color: #000000;
-            font-weight: 900;
+        .kw-badge {
+            background: rgba(250, 204, 21, 0.12);
+            border: 1.5px solid #FACC15;
+            color: #FACC15;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 800;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            letter-spacing: 0.2px;
         }
 
+        .kw-badge i { font-size: 0.75rem; }
+
+        /* Print Mode Optimization */
         @media print {
-            .action-bar { display: none; }
-            body { background: white; padding: 0; }
-            .comic-poster-canvas { border: none; box-shadow: none; padding: 0; background: white; }
-            .comic-grid-layout { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-            .comic-panel-frame { break-inside: avoid; }
+            body { background: white; color: black; padding: 0; }
+            .board-header { border: none; box-shadow: none; padding: 0; margin-bottom: 1rem; background: transparent; }
+            .btn-print { display: none; }
+            .comic-board-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+            .comic-panel-card { box-shadow: none; break-inside: avoid; }
         }
     </style>
 </head>
 <body>
 
-    <!-- TOP ACTION BAR -->
-    <div class="action-bar">
-        <div class="action-title">
-            <i class="fa-solid fa-book-open"></i> VANSH SAINI — 8-PANEL OFFICIAL COMIC BOARD
+    <div class="container">
+        <!-- Top Board Header -->
+        <div class="board-header">
+            <div class="header-info">
+                <h1>VANSH SAINI — 8-PANEL OFFICIAL COMIC BOARD SHEET</h1>
+                <p>B.Tech CSE (AI & ML) | <strong>Lovely Professional University (Phagwara)</strong> | CGPA: <strong>9.6</strong></p>
+            </div>
+            <button class="btn-print" onclick="window.print()">
+                <i class="fa-solid fa-print"></i> Print Presentation Sheet
+            </button>
         </div>
-        <button class="btn-print" onclick="window.print()">
-            <i class="fa-solid fa-print"></i> PRINT PRESENTATION SHEET
-        </button>
-    </div>
 
-    <!-- VINTAGE COMIC POSTER CANVAS (MATCHING USER REFERENCE SAMPLE) -->
-    <div class="comic-poster-canvas">
-        <div class="comic-grid-layout">
+        <!-- 8-PANEL COMIC BOARD GRID WITH 100% MATCHING CV KEYWORD CHIPS -->
+        <div class="comic-board-grid">
 
-            <!-- PANEL 1 -->
-            <div class="comic-panel-frame">
-                <div class="panel-header-yellow">
-                    <span class="panel-num-circle">1</span> MY INTRODUCTION
+            <!-- PANEL 1: MY INTRODUCTION -->
+            <div class="comic-panel-card">
+                <div class="panel-yellow-banner">① MY INTRODUCTION</div>
+                <div class="panel-img-box">
+                    <img src="assets/comic_1.png" alt="Panel 1: Introduction" class="panel-img">
                 </div>
-                <div class="panel-image-wrapper">
-                    <img src="assets/comic_1.png" alt="Panel 1: My Introduction">
-                </div>
-                <div class="panel-footer-caption">
-                    <strong>Vansh Saini</strong> — B.Tech CSE (AI & ML) at Lovely Professional University.
+                <div class="panel-keyword-strip">
+                    <span class="kw-badge"><i class="fa-solid fa-user"></i> Vansh Saini</span>
+                    <span class="kw-badge"><i class="fa-solid fa-university"></i> LPU Phagwara</span>
+                    <span class="kw-badge"><i class="fa-solid fa-microchip"></i> B.Tech CSE (AI & ML)</span>
+                    <span class="kw-badge"><i class="fa-solid fa-envelope"></i> viratsaini9536021666@gmail.com</span>
+                    <span class="kw-badge"><i class="fa-solid fa-phone"></i> +91 9389047361</span>
                 </div>
             </div>
 
-            <!-- PANEL 2 -->
-            <div class="comic-panel-frame">
-                <div class="panel-header-yellow">
-                    <span class="panel-num-circle">2</span> MY EDUCATION
+            <!-- PANEL 2: MY EDUCATION -->
+            <div class="comic-panel-card">
+                <div class="panel-yellow-banner">② MY EDUCATION</div>
+                <div class="panel-img-box">
+                    <img src="assets/comic_2.png" alt="Panel 2: Education" class="panel-img">
                 </div>
-                <div class="panel-image-wrapper">
-                    <img src="assets/comic_2.png" alt="Panel 2: My Education">
-                </div>
-                <div class="panel-footer-caption">
-                    <strong>LPU B.Tech CGPA: 9.6</strong> | Class XII PCM (83.4%) Silver Bells Public School.
-                </div>
-            </div>
-
-            <!-- PANEL 3 -->
-            <div class="comic-panel-frame">
-                <div class="panel-header-yellow">
-                    <span class="panel-num-circle">3</span> MY SKILLS
-                </div>
-                <div class="panel-image-wrapper">
-                    <img src="assets/comic_3.png" alt="Panel 3: My Skills">
-                </div>
-                <div class="panel-footer-caption">
-                    <strong>Tech Stack:</strong> C++, Python, C, MongoDB, MS SQL Server & Leadership.
+                <div class="panel-keyword-strip">
+                    <span class="kw-badge"><i class="fa-solid fa-star"></i> LPU CGPA: 9.6 / 10.0</span>
+                    <span class="kw-badge"><i class="fa-solid fa-calendar"></i> Aug '26 - Present</span>
+                    <span class="kw-badge"><i class="fa-solid fa-school"></i> Silver Bells PCM (83.4%)</span>
+                    <span class="kw-badge"><i class="fa-solid fa-location-dot"></i> Shamli, Uttar Pradesh</span>
                 </div>
             </div>
 
-            <!-- PANEL 4 -->
-            <div class="comic-panel-frame">
-                <div class="panel-header-yellow">
-                    <span class="panel-num-circle">4</span> MY EXPERIENCE
+            <!-- PANEL 3: MY SKILLS -->
+            <div class="comic-panel-card">
+                <div class="panel-yellow-banner">③ MY SKILLS</div>
+                <div class="panel-img-box">
+                    <img src="assets/comic_3.png" alt="Panel 3: Skills" class="panel-img">
                 </div>
-                <div class="panel-image-wrapper">
-                    <img src="assets/comic_4.png" alt="Panel 4: My Experience">
-                </div>
-                <div class="panel-footer-caption">
-                    <strong>Algo Arena Top 10</strong> (Stage 3) | 70+ LeetCode & HackerRank Problems.
-                </div>
-            </div>
-
-            <!-- PANEL 5 -->
-            <div class="comic-panel-frame">
-                <div class="panel-header-yellow">
-                    <span class="panel-num-circle">5</span> MY PROJECT
-                </div>
-                <div class="panel-image-wrapper">
-                    <img src="assets/comic_5.png" alt="Panel 5: My Project">
-                </div>
-                <div class="panel-footer-caption">
-                    <strong>Projects:</strong> Air Quality ML, Cognitia News Portal & Roomie-Match.
+                <div class="panel-keyword-strip">
+                    <span class="kw-badge"><i class="fa-solid fa-terminal"></i> Languages: C++, Python, C</span>
+                    <span class="kw-badge"><i class="fa-solid fa-database"></i> MongoDB (NoSQL)</span>
+                    <span class="kw-badge"><i class="fa-solid fa-server"></i> MS SQL Server (Relational)</span>
+                    <span class="kw-badge"><i class="fa-solid fa-brain"></i> Problem-Solving & Leadership</span>
+                    <span class="kw-badge"><i class="fa-solid fa-arrows-rotate"></i> Adaptability & Teamwork</span>
                 </div>
             </div>
 
-            <!-- PANEL 6 -->
-            <div class="comic-panel-frame">
-                <div class="panel-header-yellow">
-                    <span class="panel-num-circle">6</span> MY ACHIEVEMENTS
+            <!-- PANEL 4: MY EXPERIENCE -->
+            <div class="comic-panel-card">
+                <div class="panel-yellow-banner">④ MY EXPERIENCE</div>
+                <div class="panel-img-box">
+                    <img src="assets/comic_4.png" alt="Panel 4: Experience" class="panel-img">
                 </div>
-                <div class="panel-image-wrapper">
-                    <img src="assets/comic_6.png" alt="Panel 6: My Achievements">
-                </div>
-                <div class="panel-footer-caption">
-                    <strong>Cognitia Top 5 Finalist</strong> | 7 Verified Certs (Infosys AI, German A1).
-                </div>
-            </div>
-
-            <!-- PANEL 7 -->
-            <div class="comic-panel-frame">
-                <div class="panel-header-yellow">
-                    <span class="panel-num-circle">7</span> MY STRENGTHS
-                </div>
-                <div class="panel-image-wrapper">
-                    <img src="assets/comic_7.png" alt="Panel 7: My Strengths">
-                </div>
-                <div class="panel-footer-caption">
-                    <strong>Value Proposition:</strong> 9.6 CGPA Rigor, Quick Agility & Team Synergy.
+                <div class="panel-keyword-strip">
+                    <span class="kw-badge"><i class="fa-solid fa-trophy"></i> Algo Arena Top 10</span>
+                    <span class="kw-badge"><i class="fa-solid fa-check-double"></i> Stage 3 Cleared</span>
+                    <span class="kw-badge"><i class="fa-solid fa-laptop-code"></i> 100+ LeetCode Problems</span>
+                    <span class="kw-badge"><i class="fa-solid fa-code"></i> 250+ Total DSA Solved</span>
+                    <span class="kw-badge"><i class="fa-solid fa-people-group"></i> HackerRank & HackerEarth</span>
                 </div>
             </div>
 
-            <!-- PANEL 8 -->
-            <div class="comic-panel-frame">
-                <div class="panel-header-yellow">
-                    <span class="panel-num-circle">8</span> MY CAREER GOAL
+            <!-- PANEL 5: MY PROJECT -->
+            <div class="comic-panel-card">
+                <div class="panel-yellow-banner">⑤ MY PROJECT</div>
+                <div class="panel-img-box">
+                    <img src="assets/comic_5.png" alt="Panel 5: Project" class="panel-img">
                 </div>
-                <div class="panel-image-wrapper">
-                    <img src="assets/comic_8.png" alt="Panel 8: My Career Goal">
+                <div class="panel-keyword-strip">
+                    <span class="kw-badge"><i class="fa-solid fa-wind"></i> Air Quality ML (May '26)</span>
+                    <span class="kw-badge"><i class="fa-solid fa-newspaper"></i> Bharat Jago News (Apr '25)</span>
+                    <span class="kw-badge"><i class="fa-solid fa-house-user"></i> LPU Roomie-Match (Jun '25)</span>
+                    <span class="kw-badge"><i class="fa-solid fa-gear"></i> Python, ML, HTML, APIs, UI/UX</span>
                 </div>
-                <div class="panel-footer-caption">
-                    <strong>Career Target:</strong> Lead Artificial Intelligence & Machine Learning Engineer.
+            </div>
+
+            <!-- PANEL 6: MY ACHIEVEMENTS -->
+            <div class="comic-panel-card">
+                <div class="panel-yellow-banner">⑥ MY ACHIEVEMENTS</div>
+                <div class="panel-img-box">
+                    <img src="assets/comic_6.png" alt="Panel 6: Achievements" class="panel-img">
+                </div>
+                <div class="panel-keyword-strip">
+                    <span class="kw-badge"><i class="fa-solid fa-award"></i> Cognitia Top 5 Finalist</span>
+                    <span class="kw-badge"><i class="fa-solid fa-robot"></i> Infosys AI (Mar '26)</span>
+                    <span class="kw-badge"><i class="fa-solid fa-language"></i> German Deutsch A1 (Feb '26)</span>
+                    <span class="kw-badge"><i class="fa-solid fa-code"></i> Saylor C++ (May '26)</span>
+                    <span class="kw-badge"><i class="fa-brands fa-python"></i> Udemy Python DSA (Apr '25)</span>
+                    <span class="kw-badge"><i class="fa-solid fa-certificate"></i> Saylor Python & C Certs</span>
+                </div>
+            </div>
+
+            <!-- PANEL 7: MY STRENGTHS -->
+            <div class="comic-panel-card">
+                <div class="panel-yellow-banner">⑦ MY STRENGTHS</div>
+                <div class="panel-img-box">
+                    <img src="assets/comic_7.png" alt="Panel 7: Strengths" class="panel-img">
+                </div>
+                <div class="panel-keyword-strip">
+                    <span class="kw-badge"><i class="fa-solid fa-shield-halved"></i> 9.6 CGPA Consistency</span>
+                    <span class="kw-badge"><i class="fa-solid fa-bolt"></i> Fast Agility & Learning</span>
+                    <span class="kw-badge"><i class="fa-solid fa-puzzle-piece"></i> Algorithmic Execution</span>
+                    <span class="kw-badge"><i class="fa-solid fa-handshake"></i> Collaborative Leadership</span>
+                </div>
+            </div>
+
+            <!-- PANEL 8: MY CAREER GOAL -->
+            <div class="comic-panel-card">
+                <div class="panel-yellow-banner">⑧ MY CAREER GOAL</div>
+                <div class="panel-img-box">
+                    <img src="assets/comic_8.png" alt="Panel 8: Goal" class="panel-img">
+                </div>
+                <div class="panel-keyword-strip">
+                    <span class="kw-badge"><i class="fa-solid fa-bullseye"></i> Lead AI/ML Engineer</span>
+                    <span class="kw-badge"><i class="fa-solid fa-diagram-project"></i> Predictive Analytics</span>
+                    <span class="kw-badge"><i class="fa-solid fa-gears"></i> Intelligent Automation</span>
+                    <span class="kw-badge"><i class="fa-solid fa-rocket"></i> Scalable AI Infrastructure</span>
                 </div>
             </div>
 

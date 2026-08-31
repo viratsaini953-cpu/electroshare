@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Vansh Saini - Professional Engineering Portfolio. B.Tech Computer Science & Engineering (AI & ML) student at LPU (CGPA 9.6).">
+    <title>Vansh Saini | Professional Portfolio</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Ambient Background Lighting Glows -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- Top Announcement Bar / Student Submission Header -->
+    <div class="submission-banner">
+        <div class="container submission-flex">
+            <div class="submission-info">
+                <span class="badge-live"><i class="fa-solid fa-circle-dot"></i> Live Portfolio</span>
+                <span class="sub-text">Portfolio Submission | <strong>Vansh Saini (CSE AI & ML, LPU Phagwara - CGPA 9.6)</strong></span>
+            </div>
+            <div class="submission-actions">
+                <button onclick="openCvModal()" class="btn-sm btn-gradient"><i class="fa-solid fa-file-pdf"></i> View CV</button>
+                <button id="btn-copy-url" class="btn-sm btn-outline"><i class="fa-solid fa-link"></i> Copy Portfolio Link</button>
+                <a href="comic_presentation.html" target="_blank" class="btn-sm btn-accent"><i class="fa-solid fa-book-open"></i> 8-Panel Comic Board Sheet</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Header / Navigation Bar -->
+    <header class="main-header">
+        <div class="container header-container">
+            <a href="#hero" class="brand-logo">
+                <span class="logo-text">VANSH<span>SAINI</span></span>
+                <span class="logo-badge">AI & ML</span>
+            </a>
+
+            <nav class="nav-menu" id="navMenu">
+                <a href="#about" class="nav-link"><i class="fa-solid fa-user"></i> About</a>
+                <a href="#academic" class="nav-link"><i class="fa-solid fa-graduation-cap"></i> Academics</a>
+                <a href="#skills" class="nav-link"><i class="fa-solid fa-code"></i> Skills</a>
+                <a href="#projects" class="nav-link"><i class="fa-solid fa-laptop-code"></i> Projects</a>
+                <a href="#achievements" class="nav-link"><i class="fa-solid fa-trophy"></i> Achievements</a>
+                <a href="#certifications" class="nav-link"><i class="fa-solid fa-certificate"></i> Certificates</a>
+                <a href="javascript:void(0)" onclick="openCvModal()" class="nav-link"><i class="fa-solid fa-file-pdf"></i> View CV</a>
+                <a href="#contact" class="nav-link"><i class="fa-solid fa-paper-plane"></i> Contact</a>
+            </nav>
+
+            <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section">
+            <div class="container hero-grid">
+                <div class="hero-content">
+                    <div class="hero-tag">
+                        <i class="fa-solid fa-sparkles"></i> Computer Science & AI/ML Specialist
+                    </div>
+                    <h1 class="hero-title">
+                        Hi, I'm <span class="gradient-text">Vansh Saini</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        B.Tech CSE (Artificial Intelligence & Machine Learning) Scholar at <strong>Lovely Professional University (Phagwara, Punjab)</strong> with a perfect <strong>9.6 CGPA</strong>. Passionate about leveraging data intelligence, machine learning, and algorithmic problem solving (<strong>250+ Total DSA Problems Solved & 100+ LeetCode</strong>) to engineer impactful real-world software solutions.
+                    </p>
+
+                    <!-- Key Metrics Grid -->
+                    <div class="hero-stats">
+                        <div class="stat-card">
+                            <div class="stat-value gradient-text">9.6</div>
+                            <div class="stat-label">CGPA at LPU</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">Top 5</div>
+                            <div class="stat-label">Cognitia Finalist</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">Top 10</div>
+                            <div class="stat-label">Algo Arena Stage 3</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">250+</div>
+                            <div class="stat-label">DSA Solved (100+ LeetCode)</div>
+                        </div>
+                    </div>
+
+                    <!-- CTA Buttons -->
+                    <div class="hero-cta">
+                        <button onclick="openCvModal()" class="btn btn-primary"><i class="fa-solid fa-file-invoice"></i> View CV</button>
+                        <a href="#projects" class="btn btn-secondary"><i class="fa-solid fa-rocket"></i> View Featured Projects</a>
+                        <a href="#certifications" class="btn btn-outline"><i class="fa-solid fa-certificate"></i> View Certificates</a>
+                        <a href="#contact" class="btn btn-outline"><i class="fa-solid fa-address-book"></i> Connect</a>
+                    </div>
+
+                    <!-- Contact & Social Links -->
+                    <div class="social-pills">
+                        <a href="https://github.com/viratsaini953-cpu" target="_blank" class="social-pill" title="GitHub">
+                            <i class="fa-brands fa-github"></i> github.com/viratsaini953-cpu
+                        </a>
+                        <a href="https://www.linkedin.com/in/vanshsaini2029" target="_blank" class="social-pill" title="LinkedIn">
+                            <i class="fa-brands fa-linkedin"></i> linkedin.com/in/vanshsaini2029
+                        </a>
+                        <a href="mailto:viratsaini9536021666@gmail.com" class="social-pill" title="Email">
+                            <i class="fa-solid fa-envelope"></i> viratsaini9536021666@gmail.com
+                        </a>
+                        <a href="tel:+919389047361" class="social-pill" title="Mobile">
+                            <i class="fa-solid fa-phone"></i> +91 9389047361
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Hero Graphic Avatar Card -->
+                <div class="hero-media">
+                    <div class="avatar-card-wrapper">
+                        <div class="glass-card avatar-card">
+                            <div class="avatar-image-container">
+                                <img src="assets/vansh_suit.jpg" alt="Vansh Saini Formal Suit Portrait" class="avatar-img">
+                                <div class="avatar-glow"></div>
+                            </div>
+                            <div class="avatar-info">
+                                <h3>Vansh Saini</h3>
+                                <p><i class="fa-solid fa-graduation-cap"></i> B.Tech CSE (AI & ML) | CGPA 9.6</p>
+                                <div class="badge-group">
+                                    <span class="tech-chip"><i class="fa-solid fa-brain"></i> AI & ML</span>
+                                    <span class="tech-chip"><i class="fa-solid fa-code"></i> C++ / Python / C</span>
+                                    <span class="tech-chip"><i class="fa-solid fa-database"></i> SQL / MongoDB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Me Section -->
+        <section id="about" class="section storyline-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <div class="section-tag"><i class="fa-solid fa-user"></i> Professional Profile</div>
+                    <h2 class="section-title">About <span class="gradient-text">Vansh Saini</span></h2>
+                    <p class="section-subtitle">
+                        An ambitious Computer Science student specializing in AI & Machine Learning, committed to technical excellence and real-world problem solving.
+                    </p>
+                </div>
+
+                <div class="about-summary-box glass-card">
+                    <div class="about-grid">
+                        <div class="about-col">
+                            <h3><i class="fa-solid fa-bullseye color-cyan"></i> Professional Overview</h3>
+                            <p>
+                                I am currently pursuing my Bachelor of Technology in Computer Science & Engineering with a specialization in Artificial Intelligence & Machine Learning at <strong>Lovely Professional University (LPU), Phagwara</strong>, maintaining a <strong>9.6 CGPA</strong>.
+                            </p>
+                            <p>
+                                My expertise spans low-level procedural/OOP coding in C++ to high-level data intelligence models in Python. I actively compete in hackathons (Cognitia Top 5 Finalist) and competitive programming (Algo Arena Top 10 & 250+ Total DSA Problems Solved).
+                            </p>
+                        </div>
+                        <div class="about-col">
+                            <h3><i class="fa-solid fa-star color-purple"></i> Key Soft Skills</h3>
+                            <ul class="about-list">
+                                <li><i class="fa-solid fa-check-circle"></i> <strong>Problem-Solving:</strong> 250+ total DSA problems solved (100+ LeetCode).</li>
+                                <li><i class="fa-solid fa-check-circle"></i> <strong>Team Player:</strong> Collaborative hackathon execution.</li>
+                                <li><i class="fa-solid fa-check-circle"></i> <strong>Adaptability:</strong> Rapid learning agility across tech stacks.</li>
+                                <li><i class="fa-solid fa-check-circle"></i> <strong>Leadership:</strong> Technical communication and project leadership.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Academic Background Section -->
+        <section id="academic" class="section academic-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-tag"><i class="fa-solid fa-graduation-cap"></i> Education</div>
+                    <h2 class="section-title">Academic <span class="gradient-text">Excellence</span></h2>
+                    <p class="section-subtitle">Sustained high academic performance and foundational scientific background.</p>
+                </div>
+
+                <div class="academic-grid">
+                    
+                    <!-- LPU B.Tech -->
+                    <div class="glass-card academic-card featured-academic">
+                        <div class="academic-icon">
+                            <i class="fa-solid fa-university"></i>
+                        </div>
+                        <div class="academic-details">
+                            <div class="timeline-date"><i class="fa-solid fa-calendar-days"></i> Aug '26 – Present | Phagwara, Punjab</div>
+                            <h3>Lovely Professional University (LPU)</h3>
+                            <div class="degree-title">Bachelor of Technology (B.Tech) - Computer Science and Engineering</div>
+                            <div class="specialization"><i class="fa-solid fa-microchip"></i> Specialization: Artificial Intelligence and Machine Learning</div>
+                            <div class="cgpa-pill">
+                                <span>CGPA: <strong>9.6 / 10.0</strong></span>
+                                <span class="badge-tag">Top Tier Performer</span>
+                            </div>
+                            <p class="academic-desc">
+                                Advanced coursework in Artificial Intelligence, Machine Learning, Data Structures & Algorithms, Object-Oriented Systems, and Database Management.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- High School -->
+                    <div class="glass-card academic-card">
+                        <div class="academic-icon">
+                            <i class="fa-solid fa-school"></i>
+                        </div>
+                        <div class="academic-details">
+                            <div class="timeline-date"><i class="fa-solid fa-calendar-days"></i> Mar '23 – May '24 | Shamli, Uttar Pradesh</div>
+                            <h3>Silver Bells Public School (Distt-Shamli)</h3>
+                            <div class="degree-title">Intermediate (Class XII - PCM)</div>
+                            <div class="specialization"><i class="fa-solid fa-atom"></i> Focus: Physics, Chemistry & Mathematics</div>
+                            <div class="cgpa-pill alt-pill">
+                                <span>Percentage: <strong>83.4%</strong></span>
+                            </div>
+                            <p class="academic-desc">
+                                Senior secondary education in PCM, building strong quantitative, mathematical, and analytical reasoning foundations.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Skills & Core Competencies Section -->
+        <section id="skills" class="section skills-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-tag"><i class="fa-solid fa-code"></i> Technical Stack</div>
+                    <h2 class="section-title">Skills & <span class="gradient-text">Competencies</span></h2>
+                    <p class="section-subtitle">Proficient in programming languages, databases, problem-solving, and soft skills.</p>
+                </div>
+
+                <div class="skills-grid">
+                    
+                    <!-- Languages -->
+                    <div class="glass-card skill-category-card">
+                        <div class="skill-head">
+                            <i class="fa-solid fa-terminal color-cyan"></i>
+                            <h3>Programming Languages</h3>
+                        </div>
+                        <div class="skill-list">
+                            <div class="skill-item">
+                                <div class="skill-info">
+                                    <span>C++</span>
+                                    <span>Advanced</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill fill-90"></div></div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-info">
+                                    <span>Python</span>
+                                    <span>Advanced</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill fill-85"></div></div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-info">
+                                    <span>C</span>
+                                    <span>Proficient</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill fill-80"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tools & Databases -->
+                    <div class="glass-card skill-category-card">
+                        <div class="skill-head">
+                            <i class="fa-solid fa-database color-purple"></i>
+                            <h3>Tools & Platforms</h3>
+                        </div>
+                        <div class="skill-list">
+                            <div class="skill-item">
+                                <div class="skill-info">
+                                    <span>MongoDB</span>
+                                    <span>NoSQL Database</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill fill-80"></div></div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-info">
+                                    <span>MS SQL Server</span>
+                                    <span>Relational DB</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill fill-85"></div></div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-info">
+                                    <span>HTML5 & CSS3</span>
+                                    <span>Web Interfaces</span>
+                                </div>
+                                <div class="progress-bar"><div class="progress-fill fill-88"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Soft Skills -->
+                    <div class="glass-card skill-category-card">
+                        <div class="skill-head">
+                            <i class="fa-solid fa-users-gear color-emerald"></i>
+                            <h3>Soft Skills</h3>
+                        </div>
+                        <div class="soft-skills-tags">
+                            <span class="soft-badge"><i class="fa-solid fa-puzzle-piece"></i> Problem-Solving</span>
+                            <span class="soft-badge"><i class="fa-solid fa-people-group"></i> Team Player</span>
+                            <span class="soft-badge"><i class="fa-solid fa-arrows-rotate"></i> Adaptability</span>
+                            <span class="soft-badge"><i class="fa-solid fa-user-ninja"></i> Leadership</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Showcase Section -->
+        <section id="projects" class="section projects-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-tag"><i class="fa-solid fa-laptop-code"></i> Engineering Portfolio</div>
+                    <h2 class="section-title">Featured <span class="gradient-text">Projects</span></h2>
+                    <p class="section-subtitle">Real-world applications built with Python, Machine Learning, APIs, and Web Technologies.</p>
+                </div>
+
+                <div class="projects-grid">
+
+                    <!-- Project 1: Air Quality Monitoring -->
+                    <div class="glass-card project-card">
+                        <div class="project-img-box">
+                            <img src="assets/air_quality.png" alt="Air Quality Monitoring System" class="project-img">
+                            <div class="project-date">May '26</div>
+                        </div>
+                        <div class="project-content">
+                            <div class="project-tags">
+                                <span class="tag">Python</span>
+                                <span class="tag">HTML</span>
+                                <span class="tag">Machine Learning</span>
+                                <span class="tag">Data Analysis</span>
+                            </div>
+                            <h3>Data Intelligence Project | Air Quality Monitoring</h3>
+                            <p class="project-desc">
+                                Built an environmental air quality monitoring system to process atmospheric data and analyze pollutant concentration trends. Implemented data processing, visualization, and predictive analysis using Python, HTML, and Machine Learning techniques to generate data-driven insights.
+                            </p>
+                            <ul class="project-bullets">
+                                <li><i class="fa-solid fa-check-circle"></i> Analyzed environmental data and tracked atmospheric pollutant trends.</li>
+                                <li><i class="fa-solid fa-check-circle"></i> Implemented machine learning regression for predictive air quality patterns.</li>
+                                <li><i class="fa-solid fa-check-circle"></i> Generated data-driven insights to support environmental analysis.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Project 2: Cognitia News & Media Platform -->
+                    <div class="glass-card project-card">
+                        <div class="project-img-box">
+                            <img src="assets/bharat_jago.png" alt="Bharat Jago News Platform" class="project-img">
+                            <div class="project-date">Apr '25</div>
+                            <span class="project-award"><i class="fa-solid fa-trophy"></i> Cognitia Finalist</span>
+                        </div>
+                        <div class="project-content">
+                            <div class="project-tags">
+                                <span class="tag">Python</span>
+                                <span class="tag">HTML</span>
+                                <span class="tag">API Integration</span>
+                            </div>
+                            <h3>Cognitia Finalist | News & Media Platform (Theme: Bharat Jago)</h3>
+                            <p class="project-desc">
+                                Developed a news and media platform focused on providing users with relevant information through a centralized digital interface. Integrated Python-based functionality, HTML frontend components, and APIs to collect, process, and display dynamic information.
+                            </p>
+                            <ul class="project-bullets">
+                                <li><i class="fa-solid fa-check-circle"></i> Achieved Top 5 Finalist position in the Cognitia competition.</li>
+                                <li><i class="fa-solid fa-check-circle"></i> Integrated APIs to collect, process, and display dynamic news data.</li>
+                                <li><i class="fa-solid fa-check-circle"></i> Delivered practical digital solution for real-world social-impact problems.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Project 3: LPU Roomie-Match -->
+                    <div class="glass-card project-card">
+                        <div class="project-img-box">
+                            <img src="assets/roomie_match.png" alt="LPU Roomie-Match Dashboard" class="project-img">
+                            <div class="project-date">Jun '25</div>
+                        </div>
+                        <div class="project-content">
+                            <div class="project-tags">
+                                <span class="tag">HTML</span>
+                                <span class="tag">CSS3</span>
+                                <span class="tag">UI</span>
+                                <span class="tag">UX</span>
+                            </div>
+                            <h3>LPU Roomie-Match | Hostel & Roommate Matching Dashboard</h3>
+                            <p class="project-desc">
+                                Designed a hostel and roommate matching dashboard to help LPU students find suitable roommates based on their preferences. Implemented a responsive user interface using HTML and CSS3 with a focus on simple navigation and user-friendly interaction.
+                            </p>
+                            <ul class="project-bullets">
+                                <li><i class="fa-solid fa-check-circle"></i> Responsive user interface focused on simple, intuitive navigation.</li>
+                                <li><i class="fa-solid fa-check-circle"></i> Streamlined matching experience for roommate discovery.</li>
+                                <li><i class="fa-solid fa-check-circle"></i> Simplified hostel-related coordination for LPU students.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Achievements & Extra-Curriculars -->
+        <section id="achievements" class="section achievements-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-tag"><i class="fa-solid fa-trophy"></i> Extra Curricular Activities</div>
+                    <h2 class="section-title">Achievements & <span class="gradient-text">Recognitions</span></h2>
+                    <p class="section-subtitle">Proven track record in hackathons, competitive programming, and problem-solving arenas.</p>
+                </div>
+
+                <div class="achievements-grid">
+                    
+                    <div class="glass-card achievement-card">
+                        <div class="achieve-icon icon-amber">
+                            <i class="fa-solid fa-award"></i>
+                        </div>
+                        <div class="achieve-content">
+                            <h3>Cognitia Competition — Top 5 Finalist</h3>
+                            <p>Achieved Top 5 Finalist position in the national Cognitia competition with the "Bharat Jago" news platform.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card achievement-card">
+                        <div class="achieve-icon icon-cyan">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                        <div class="achieve-content">
+                            <h3>Algo Arena — Top 10 & Stage 3 Cleared</h3>
+                            <p>Secured Top 10 position and cleared Stage 3 in Algo Arena, demonstrating strong problem-solving and DSA skills.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card achievement-card">
+                        <div class="achieve-icon icon-purple">
+                            <i class="fa-solid fa-laptop-code"></i>
+                        </div>
+                        <div class="achieve-content">
+                            <h3>Competitive Programming — 250+ Problems</h3>
+                            <p>Solved 250+ Total DSA Problems across platforms including 100+ LeetCode problems, HackerRank, and HackerEarth.</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-card achievement-card">
+                        <div class="achieve-icon icon-emerald">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="achieve-content">
+                            <h3>Hackathon Collaborations</h3>
+                            <p>Participated in multiple hackathons, developing technology-based solutions for real-world problems under tight deadlines.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- VERIFIED CERTIFICATES GALLERY SECTION -->
+        <section id="certifications" class="section cert-section">
+            <div class="container">
+                <div class="section-header">
+                    <div class="section-tag"><i class="fa-solid fa-certificate"></i> Verified Credentials</div>
+                    <h2 class="section-title">Certificates & <span class="gradient-text">Training</span></h2>
+                    <p class="section-subtitle">Official verified certificates uploaded by Vansh Saini (Hover to view details).</p>
+                </div>
+
+                <div class="cert-grid">
+
+                    <!-- Cert 1: Infosys AI -->
+                    <div class="cert-card-real">
+                        <img src="assets/cert_infosys_ai.jpg" alt="Infosys AI Certificate" class="cert-real-img">
+                        <div class="cert-overlay-content">
+                            <span class="cert-overlay-tag"><i class="fa-solid fa-robot"></i> Mar '26</span>
+                            <h3>Introduction to Artificial Intelligence</h3>
+                            <div class="cert-overlay-issuer">Infosys Springboard</div>
+                            <p class="cert-overlay-desc">Verified completion of AI fundamentals, search algorithms, and intelligent systems.</p>
+                        </div>
+                    </div>
+
+                    <!-- Cert 2: LPU German Deutsch A1 -->
+                    <div class="cert-card-real">
+                        <img src="assets/cert_lpu_german.jpg" alt="LPU German A1 Certificate" class="cert-real-img">
+                        <div class="cert-overlay-content">
+                            <span class="cert-overlay-tag"><i class="fa-solid fa-language"></i> Feb '26</span>
+                            <h3>German Deutsch A1</h3>
+                            <div class="cert-overlay-issuer">Lovely Professional University</div>
+                            <p class="cert-overlay-desc">Certified German language proficiency from CPE LPU (Grade O).</p>
+                        </div>
+                    </div>
+
+                    <!-- Cert 3: Saylor C++ -->
+                    <div class="cert-card-real">
+                        <img src="assets/cert_saylor_cpp.jpg" alt="Saylor C++ Certificate" class="cert-real-img">
+                        <div class="cert-overlay-content">
+                            <span class="cert-overlay-tag"><i class="fa-solid fa-code"></i> May '26</span>
+                            <h3>C++ Programming</h3>
+                            <div class="cert-overlay-issuer">Saylor Academy</div>
+                            <p class="cert-overlay-desc">Certificate ID: 3272665667VS | Coursework in C++ OOP & STL.</p>
+                        </div>
+                    </div>
+
+                    <!-- Cert 4: Udemy Python DSA -->
+                    <div class="cert-card-real">
+                        <img src="assets/cert_udemy_dsa.jpg" alt="Udemy Python DSA Certificate" class="cert-real-img">
+                        <div class="cert-overlay-content">
+                            <span class="cert-overlay-tag"><i class="fa-brands fa-python"></i> Apr '25</span>
+                            <h3>Python DSA</h3>
+                            <div class="cert-overlay-issuer">Udemy</div>
+                            <p class="cert-overlay-desc">Certificate No: UC-259be121 | Algorithmic problem solving and data structures.</p>
+                        </div>
+                    </div>
+
+                    <!-- Cert 5: Saylor Python -->
+                    <div class="cert-card-real">
+                        <img src="assets/cert_infosys_py1.jpg" alt="Saylor Python Certificate" class="cert-real-img">
+                        <div class="cert-overlay-content">
+                            <span class="cert-overlay-tag"><i class="fa-brands fa-python"></i> July '25</span>
+                            <h3>Python Programming</h3>
+                            <div class="cert-overlay-issuer">Saylor Academy</div>
+                            <p class="cert-overlay-desc">Programming fundamentals, functions, control structures, and data logic.</p>
+                        </div>
+                    </div>
+
+                    <!-- Cert 6: Saylor C Programming -->
+                    <div class="cert-card-real">
+                        <img src="assets/cert_infosys_py2.jpg" alt="Saylor C Programming Certificate" class="cert-real-img">
+                        <div class="cert-overlay-content">
+                            <span class="cert-overlay-tag"><i class="fa-solid fa-code"></i> August '25</span>
+                            <h3>C Programming</h3>
+                            <div class="cert-overlay-issuer">Saylor Academy</div>
+                            <p class="cert-overlay-desc">Core C language syntax, memory management, pointers, and algorithms.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section contact-section">
+            <div class="container">
+                <div class="glass-card contact-box">
+                    <div class="contact-header text-center">
+                        <div class="section-tag"><i class="fa-solid fa-paper-plane"></i> Get In Touch</div>
+                        <h2 class="section-title">Let's Connect & <span class="gradient-text">Collaborate</span></h2>
+                        <p class="section-subtitle">Open for AI/ML engineering internships, research projects, and technical collaborations.</p>
+                    </div>
+
+                    <div class="contact-links-grid">
+                        <a href="mailto:viratsaini9536021666@gmail.com" class="contact-card">
+                            <div class="c-icon"><i class="fa-solid fa-envelope"></i></div>
+                            <div class="c-label">Email</div>
+                            <div class="c-val">viratsaini9536021666@gmail.com</div>
+                        </a>
+
+                        <a href="tel:+919389047361" class="contact-card">
+                            <div class="c-icon"><i class="fa-solid fa-phone"></i></div>
+                            <div class="c-label">Phone</div>
+                            <div class="c-val">+91 9389047361</div>
+                        </a>
+
+                        <a href="https://github.com/viratsaini953-cpu" target="_blank" class="contact-card">
+                            <div class="c-icon"><i class="fa-brands fa-github"></i></div>
+                            <div class="c-label">GitHub</div>
+                            <div class="c-val">viratsaini953-cpu</div>
+                        </a>
+
+                        <a href="https://www.linkedin.com/in/vanshsaini2029" target="_blank" class="contact-card">
+                            <div class="c-icon"><i class="fa-brands fa-linkedin"></i></div>
+                            <div class="c-label">LinkedIn</div>
+                            <div class="c-val">vanshsaini2029</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container footer-content">
+            <p>&copy; 2026 <strong>Vansh Saini</strong>. Professional Engineering Portfolio.</p>
+            <p class="footer-sub">Lovely Professional University | B.Tech CSE (AI & ML) | CGPA 9.6</p>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE OFFICIAL CV MODAL VIEWER -->
+    <div id="cvModal" class="modal-overlay" onclick="if(event.target===this) closeCvModal()">
+        <div class="modal-container glass-card cv-modal-container">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <span class="badge-live"><i class="fa-solid fa-file-pdf"></i> Official Curriculum Vitae</span>
+                    <h2 style="font-size: 1.25rem; margin-top: 0.2rem;">Vansh Saini — CV Document</h2>
+                </div>
+                <div class="cv-modal-actions">
+                    <a href="assets/vansh_cv.png" target="_blank" class="btn-sm btn-outline"><i class="fa-solid fa-expand"></i> Full High-Res View</a>
+                    <a href="assets/vansh_cv.png" download="Vansh_Saini_CV.png" class="btn-sm btn-accent"><i class="fa-solid fa-download"></i> Download CV</a>
+                    <button class="modal-close" onclick="closeCvModal()"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <div class="modal-body cv-modal-body">
+                <div class="cv-paper-frame">
+                    <img src="assets/vansh_cv.png" alt="Vansh Saini Official CV" class="cv-document-img">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification for Link Copy -->
+    <div id="toastNotification" class="toast">
+        <i class="fa-solid fa-circle-check"></i> Portfolio URL copied to clipboard!
+    </div>
+
+    <!-- JavaScript File -->
+    <script src="script.js"></script>
+</body>
+</html>
