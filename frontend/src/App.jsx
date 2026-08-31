@@ -616,10 +616,10 @@ export default function App() {
     }
   };
 
-  const fetchDashboardData = async () => {
-    const localOrders = JSON.parse(localStorage.getItem('electroshare_orders') || '[]');
-    
-    const seedAdminOrders = [
+const getStoredOrders = () => {
+  const stored = localStorage.getItem('electroshare_orders');
+  if (stored === null) {
+    const initialSeed = [
       {
         id: 'ORD-882104',
         product_title: 'Smart Home Automation System (IoT & Bluetooth Control)',
@@ -651,22 +651,32 @@ export default function App() {
         created_at: new Date().toISOString()
       }
     ];
+    localStorage.setItem('electroshare_orders', JSON.stringify(initialSeed));
+    return initialSeed;
+  }
+  try {
+    return JSON.parse(stored);
+  } catch (e) {
+    return [];
+  }
+};
 
-    const displayOrders = localOrders.length > 0 ? localOrders : seedAdminOrders;
+  const fetchDashboardData = async () => {
+    const displayOrders = getStoredOrders();
 
     if (user?.role === 'admin') {
       setAllOrders(displayOrders);
       try {
         const adminOrders = await apiRequest('/admin/orders');
         if (Array.isArray(adminOrders) && adminOrders.length > 0) {
-          setAllOrders([...localOrders, ...adminOrders]);
+          setAllOrders([...displayOrders, ...adminOrders]);
         }
       } catch (err) {
         console.warn('Backend API offline, displaying local orders in Admin Console');
       }
     } else if (user) {
       const myUserPurchases = displayOrders.filter(o => o.buyer_phone === user.phone || o.buyer_id === user.id);
-      setMyPurchases(myUserPurchases.length > 0 ? myUserPurchases : displayOrders.slice(0, 1));
+      setMyPurchases(myUserPurchases);
     }
   };
 
@@ -940,7 +950,7 @@ export default function App() {
     setAllOrders(prev => prev.filter(ord => ord.id !== orderId));
     
     // Remove from local storage
-    const existingOrders = JSON.parse(localStorage.getItem('electroshare_orders') || '[]');
+    const existingOrders = getStoredOrders();
     const updatedOrders = existingOrders.filter(ord => ord.id !== orderId);
     localStorage.setItem('electroshare_orders', JSON.stringify(updatedOrders));
 
@@ -990,7 +1000,7 @@ export default function App() {
       created_at: new Date().toISOString()
     };
 
-    const existingOrders = JSON.parse(localStorage.getItem('electroshare_orders') || '[]');
+    const existingOrders = getStoredOrders();
     const updatedOrders = [newOrder, ...existingOrders];
     localStorage.setItem('electroshare_orders', JSON.stringify(updatedOrders));
 
