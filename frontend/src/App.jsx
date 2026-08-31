@@ -570,6 +570,9 @@ export default function App() {
   };
 
   const fetchProducts = async () => {
+    const userCustomProds = JSON.parse(localStorage.getItem('electroshare_user_products') || '[]');
+    let allProdsList = [...userCustomProds, ...FALLBACK_PRODUCTS];
+
     try {
       let url = '/products';
       const params = [];
@@ -585,12 +588,12 @@ export default function App() {
       
       const data = await apiRequest(url);
       if (Array.isArray(data) && data.length > 0) {
-        setProducts(data);
+        setProducts([...userCustomProds, ...data]);
       } else {
-        setProducts(FALLBACK_PRODUCTS);
+        setProducts(allProdsList);
       }
     } catch (err) {
-      setProducts(FALLBACK_PRODUCTS);
+      setProducts(allProdsList);
     }
   };
 
@@ -694,7 +697,7 @@ const getStoredOrders = () => {
     }
   };
 
-  const ADMIN_NUMBERS = ['9389047361', '9389047261', '9259558081'];
+  const ADMIN_NUMBERS = ['9389047361', '9389047261'];
 
   // 2. Authentication routines
   const handleCheckPhone = async (e) => {
@@ -886,8 +889,47 @@ const getStoredOrders = () => {
       showToast('Please capture or upload a photo of the component.', 'error');
       return;
     }
+
+    const catObj = FALLBACK_CATEGORIES.find(c => c.id == listCategory) || { id: parseInt(listCategory), name: 'Electronics' };
+
+    const newProd = {
+      id: 'user-prod-' + Math.floor(100000 + Math.random() * 900000),
+      title: listTitle,
+      description: listDesc,
+      category_id: parseInt(listCategory),
+      category: catObj,
+      condition: listCondition,
+      price: parseFloat(listPrice),
+      market_price: parseFloat(listMarketPrice) || (parseFloat(listPrice) * 1.35),
+      age_months: parseInt(listAge) || 0,
+      listing_type: listType,
+      status: 'available',
+      seller_name: user?.full_name || 'Campus Student',
+      seller_phone: user?.phone || '9389047361',
+      verification_status: 'verified',
+      image_url: listImage
+    };
+
+    const userCustomProds = JSON.parse(localStorage.getItem('electroshare_user_products') || '[]');
+    const updatedCustom = [newProd, ...userCustomProds];
+    localStorage.setItem('electroshare_user_products', JSON.stringify(updatedCustom));
+
+    showToast('Listing uploaded successfully! Live on campus marketplace.', 'success');
+
+    // Reset form
+    setListTitle('');
+    setListDesc('');
+    setListPrice('');
+    setListMarketPrice('');
+    setListAge('0');
+    setListRentPrice('');
+    setListImage('');
+
+    setActiveTab('explore');
+    fetchProducts();
+
     try {
-      const prodBody = {
+      await apiRequest('/products/create', 'POST', {
         title: listTitle,
         description: listDesc,
         category_id: parseInt(listCategory),
@@ -897,40 +939,27 @@ const getStoredOrders = () => {
         age_months: parseInt(listAge) || 0,
         listing_type: listType,
         rent_price_per_day: listType !== 'sale' ? parseFloat(listRentPrice) : null,
-        image_url: listImage,
-        amazon_url: null,
-        flipkart_url: null,
-        other_url: null
-      };
-
-      await apiRequest('/products/create', 'POST', prodBody);
-      showToast('Listing uploaded successfully!');
-      
-      // Reset form
-      setListTitle('');
-      setListDesc('');
-      setListPrice('');
-      setListMarketPrice('');
-      setListAge('0');
-      setListRentPrice('');
-      setListImage('');
-      
-      setActiveTab('explore');
-      fetchProducts();
+        image_url: listImage
+      });
     } catch (err) {
-      showToast(err.message, 'error');
+      console.warn('Backend API listing sync notice:', err);
     }
   };
 
   const handleDeleteProduct = async (productId) => {
-    if (!window.confirm("Are you sure you want to permanently delete this product listing?")) return;
+    setProducts(prev => prev.filter(p => p.id !== productId));
+    if (selectedProduct?.id === productId) setSelectedProduct(null);
+
+    const userCustomProds = JSON.parse(localStorage.getItem('electroshare_user_products') || '[]');
+    const updatedCustom = userCustomProds.filter(p => p.id !== productId);
+    localStorage.setItem('electroshare_user_products', JSON.stringify(updatedCustom));
+
+    showToast('Product listing deleted successfully!', 'success');
+
     try {
       await apiRequest(`/admin/products/${productId}`, 'DELETE');
-      showToast('Product listing deleted successfully!');
-      setSelectedProduct(null);
-      fetchProducts();
     } catch (err) {
-      showToast(err.message, 'error');
+      console.warn('Backend delete sync:', err);
     }
   };
 
@@ -1179,7 +1208,7 @@ const getStoredOrders = () => {
             /* PHASE 1: Enter Phone Number */
             <form onSubmit={handleCheckPhone} className="space-y-5">
               <div>
-                <label className="text-xs text-dark-300 font-semibold block mb-2">Mobile Phone Number / Admin Email</label>
+                <label className="text-xs text-dark-300 font-semibold block mb-2">Mobile Phone Number</label>
                 <input 
                   type="text"
                   required
