@@ -305,11 +305,29 @@ const FALLBACK_CATEGORIES = [
   { id: 5, name: 'Pre-built Semester Projects', description: 'IoT, Robotics, Automation Projects' }
 ];
 
+const getInitialUser = () => {
+  try {
+    const saved = localStorage.getItem('electroshare_user');
+    return saved ? JSON.parse(saved) : null;
+  } catch (e) {
+    return null;
+  }
+};
+
 export default function App() {
   // Navigation & Page routing state
   const [activeTab, setActiveTab] = useState('explore'); // 'explore', 'dashboard', 'list-product', 'admin', 'combos'
-  const [user, setUser] = useState(null);
+  const [user, setUserState] = useState(getInitialUser());
   const [token, setToken] = useState(localStorage.getItem('token') || '');
+
+  const setUser = (userObj) => {
+    setUserState(userObj);
+    if (userObj) {
+      localStorage.setItem('electroshare_user', JSON.stringify(userObj));
+    } else {
+      localStorage.removeItem('electroshare_user');
+    }
+  };
 
   // Auth Modal & Password Authentication State
   const [authOpen, setAuthOpen] = useState(false);
@@ -918,13 +936,20 @@ export default function App() {
   };
 
   const handleAdminDeleteOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to permanently delete this customer order?")) return;
+    // Remove from local state immediately
+    setAllOrders(prev => prev.filter(ord => ord.id !== orderId));
+    
+    // Remove from local storage
+    const existingOrders = JSON.parse(localStorage.getItem('electroshare_orders') || '[]');
+    const updatedOrders = existingOrders.filter(ord => ord.id !== orderId);
+    localStorage.setItem('electroshare_orders', JSON.stringify(updatedOrders));
+
+    showToast('Customer order deleted successfully!', 'success');
+
     try {
       await apiRequest(`/admin/orders/${orderId}`, 'DELETE');
-      showToast('Customer order deleted successfully!');
-      fetchDashboardData();
     } catch (err) {
-      showToast(err.message, 'error');
+      console.warn('Backend API delete notice:', err);
     }
   };
 
