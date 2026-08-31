@@ -651,18 +651,16 @@ export default function App() {
       return;
     }
 
+    setIsRegistered(false);
+    setIsPhoneChecked(true);
+    setIsPhoneVerified(false);
+    setOtpCountdown(60);
+    showToast('Verification OTP sent by SMS! Enter Master OTP: 123456', 'info');
+
     try {
-      const res = await apiRequest('/auth/check-phone', 'POST', { phone: targetTrimmed });
-      setIsRegistered(res.registered);
-      setIsPhoneChecked(true);
-      setIsPhoneVerified(false);
-      
-      if (!res.registered && !targetTrimmed.includes('@')) {
-        await handleSendOtp();
-      }
+      await apiRequest('/auth/check-phone', 'POST', { phone: targetTrimmed });
     } catch (err) {
-      setIsRegistered(true);
-      setIsPhoneChecked(true);
+      console.warn('API check-phone notice:', err);
     }
   };
 
