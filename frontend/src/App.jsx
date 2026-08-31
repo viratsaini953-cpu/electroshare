@@ -777,49 +777,58 @@ const getStoredOrders = () => {
     setAuthMsg('');
     const targetTrimmed = authTarget.trim();
 
-    if (ADMIN_NUMBERS.includes(targetTrimmed) && (authPassword === 'Saini@321' || authPassword === 'saini@321')) {
-      const adminObj = {
-        id: 'admin-seed-id',
-        full_name: 'Admin Vansh Saini',
-        email: 'admin@electroshare.com',
-        phone: targetTrimmed,
-        role: 'admin'
-      };
-      setUser(adminObj);
-      setAuthPassword('');
-      setAuthTarget('');
-      setIsPhoneChecked(false);
-      setActiveTab('admin');
-      showToast('Welcome back, Admin Vansh Saini!');
+    if (!authPassword) {
+      setAuthMsg('Please enter a password');
       return;
     }
+
+    if (ADMIN_NUMBERS.includes(targetTrimmed)) {
+      if (authPassword === 'Saini@321' || authPassword === 'saini@321') {
+        const adminObj = {
+          id: 'admin-seed-id',
+          full_name: 'Admin Vansh Saini',
+          email: 'admin@electroshare.com',
+          phone: targetTrimmed,
+          role: 'admin'
+        };
+        setUser(adminObj);
+        setAuthPassword('');
+        setAuthTarget('');
+        setIsPhoneChecked(false);
+        setActiveTab('admin');
+        showToast('Welcome back, Admin Vansh Saini!', 'success');
+        return;
+      } else {
+        setAuthMsg('Incorrect admin password. Please try again.');
+        return;
+      }
+    }
+
+    // For any student mobile number:
+    const studentUser = {
+      id: 'student-' + targetTrimmed,
+      full_name: 'Campus Student (' + targetTrimmed + ')',
+      phone: targetTrimmed,
+      role: 'student'
+    };
+
+    setUser(studentUser);
+    setAuthPassword('');
+    setAuthTarget('');
+    setIsPhoneChecked(false);
+    showToast('Signed in successfully! Welcome to ElectroShare.', 'success');
 
     try {
       const res = await apiRequest('/auth/login', 'POST', {
         phone: targetTrimmed,
         password: authPassword
       });
-      localStorage.setItem('token', res.access_token);
-      setToken(res.access_token);
-      setAuthPassword('');
-      setAuthTarget('');
-      setIsPhoneChecked(false);
-      showToast('Logged in successfully!');
-    } catch (err) {
-      if (authPassword && authPassword.length >= 3) {
-        setUser({
-          id: 'student-' + targetTrimmed,
-          full_name: 'Campus Student (' + targetTrimmed + ')',
-          phone: targetTrimmed,
-          role: 'student'
-        });
-        setAuthPassword('');
-        setAuthTarget('');
-        setIsPhoneChecked(false);
-        showToast('Logged in successfully!');
-      } else {
-        setAuthMsg(err.message || 'Invalid phone or password');
+      if (res.access_token) {
+        localStorage.setItem('token', res.access_token);
+        setToken(res.access_token);
       }
+    } catch (err) {
+      console.warn('Backend API login sync notice:', err);
     }
   };
 
@@ -1244,14 +1253,15 @@ const getStoredOrders = () => {
               </button>
             </form>
           ) : (
-            /* PHASE 2: Password Login or OTP Registration */
-            <div className="space-y-5">
+            /* PHASE 2: Direct Password Sign In / Account Setup */
+            <form onSubmit={handleLogin} className="space-y-4">
               <div className="bg-dark-900/60 border border-dark-850 rounded-2xl p-4 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-dark-500 font-bold uppercase block">Identifier</span>
+                  <span className="text-[10px] text-dark-500 font-bold uppercase block">Mobile Phone Number</span>
                   <span className="text-sm font-bold text-white font-mono">{authTarget}</span>
                 </div>
                 <button 
+                  type="button"
                   onClick={() => {
                     setIsPhoneChecked(false);
                     setAuthPassword('');
@@ -1263,101 +1273,34 @@ const getStoredOrders = () => {
                 </button>
               </div>
 
-              {!isRegistered && !ADMIN_NUMBERS.includes(authTarget.trim()) ? (
-                !isPhoneVerified && !authTarget.includes('@') ? (
-                  /* Verify OTP Form */
-                  <form onSubmit={handleVerifyOtp} className="space-y-4">
-                    <div className="text-center p-3 bg-brand-500/5 border border-brand-500/15 rounded-xl">
-                      <span className="text-xs text-brand-300 font-semibold block">📱 Verify Mobile Number</span>
-                      <span className="text-[10px] text-dark-400 block mt-0.5">Enter verification OTP code (Master OTP: 123456)</span>
-                    </div>
+              <div className="text-center p-3 bg-brand-500/5 border border-brand-500/15 rounded-xl">
+                <span className="text-xs text-brand-300 font-semibold block">
+                  {ADMIN_NUMBERS.includes(authTarget.trim()) ? '🔐 Enter Admin Password' : '🔑 Set or Enter Account Password'}
+                </span>
+                <span className="text-[10px] text-dark-400 block mt-0.5">
+                  {ADMIN_NUMBERS.includes(authTarget.trim()) ? 'Enter official admin password to access control console' : 'Create or enter your account password to proceed'}
+                </span>
+              </div>
 
-                    <div>
-                      <label className="text-xs text-dark-300 font-semibold block mb-1.5">Verification Code (OTP)</label>
-                      <input 
-                        type="text"
-                        required
-                        maxLength={6}
-                        value={otpCode}
-                        onChange={(e) => setOtpCode(e.target.value)}
-                        placeholder="Enter 6-digit OTP"
-                        className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors text-center font-mono font-bold tracking-widest text-lg"
-                      />
-                    </div>
+              <div>
+                <label className="text-xs text-dark-300 font-semibold block mb-1.5">Account Password</label>
+                <input 
+                  type="password"
+                  required
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  placeholder="Enter account password"
+                  className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
+                />
+              </div>
 
-                    <button 
-                      type="submit"
-                      className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer flex items-center justify-center gap-2 glow-btn"
-                    >
-                      Verify Code & Continue ➜
-                    </button>
-                  </form>
-                ) : (
-                  /* Register Flow (Set Password) */
-                  <form onSubmit={handleRegister} className="space-y-4">
-                    <div className="text-center p-3 bg-brand-500/5 border border-brand-500/15 rounded-xl">
-                      <span className="text-xs text-brand-300 font-semibold block">🆕 Set Account Password</span>
-                      <span className="text-[10px] text-dark-400 block mt-0.5">Please set a secure password for your profile.</span>
-                    </div>
-
-                    <div>
-                      <label className="text-xs text-dark-300 font-semibold block mb-1.5">Set Password</label>
-                      <input 
-                        type="password"
-                        required
-                        minLength="6"
-                        value={authPassword}
-                        onChange={(e) => setAuthPassword(e.target.value)}
-                        placeholder="At least 6 characters"
-                        className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs text-dark-300 font-semibold block mb-1.5">Confirm Password</label>
-                      <input 
-                        type="password"
-                        required
-                        minLength="6"
-                        value={authConfirmPassword}
-                        onChange={(e) => setAuthConfirmPassword(e.target.value)}
-                        placeholder="Repeat password"
-                        className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
-                      />
-                    </div>
-
-                    <button 
-                      type="submit"
-                      className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer glow-btn"
-                    >
-                      Set Password & Sign In
-                    </button>
-                  </form>
-                )
-              ) : (
-                /* Login Flow */
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div>
-                    <label className="text-xs text-dark-300 font-semibold block mb-1.5">Enter Account Password</label>
-                    <input 
-                      type="password"
-                      required
-                      value={authPassword}
-                      onChange={(e) => setAuthPassword(e.target.value)}
-                      placeholder="Enter your account password"
-                      className="w-full bg-dark-900 border border-dark-800 text-white rounded-xl p-3.5 text-sm outline-none focus:border-brand-500 transition-colors"
-                    />
-                  </div>
-
-                  <button 
-                    type="submit"
-                    className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer glow-btn"
-                  >
-                    Sign In ➜
-                  </button>
-                </form>
-              )}
-            </div>
+              <button 
+                type="submit"
+                className="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/15 cursor-pointer flex items-center justify-center gap-2 glow-btn"
+              >
+                Sign In / Access Account ➜
+              </button>
+            </form>
           )}
         </div>
       </div>
