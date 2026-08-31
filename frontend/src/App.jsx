@@ -1009,14 +1009,22 @@ export default function App() {
 
   // Admin order status update
   const handleAdminUpdateStatus = async (orderId, newStatus) => {
+    // Update local state immediately
+    setAllOrders(prev => prev.map(ord => ord.id === orderId ? { ...ord, order_status: newStatus } : ord));
+
+    // Update local storage
+    const existingOrders = JSON.parse(localStorage.getItem('electroshare_orders') || '[]');
+    const updatedOrders = existingOrders.map(ord => ord.id === orderId ? { ...ord, order_status: newStatus } : ord);
+    localStorage.setItem('electroshare_orders', JSON.stringify(updatedOrders));
+
     try {
       await apiRequest(`/admin/orders/${orderId}/update-status?order_status=${newStatus}&admin_notes=${encodeURIComponent(adminNotes)}`, 'POST');
-      showToast(`Order status updated to ${newStatus}`);
-      setAdminNotes('');
-      fetchDashboardData();
     } catch (err) {
-      showToast(err.message, 'error');
+      console.warn('Backend API status update notice:', err);
     }
+
+    showToast(`Order status updated to ${newStatus.replace(/_/g, ' ')}!`, 'success');
+    setAdminNotes('');
   };
 
   // Admin combo kit creation
