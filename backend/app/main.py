@@ -108,9 +108,9 @@ async def lifespan(app: FastAPI):
             db.add(admin_user)
             db.commit()
             
-        # Seed/Update all specific admin users with phones 9389047361, 9389047261, 9259558081 and password Saini@321
+        # Seed/Update specific admin user with phone 9389047361 and password Saini@321
         from app.routers.auth import hash_password
-        admin_phones = ["9389047361", "9389047261", "9259558081"]
+        admin_phones = ["9389047361"]
         admin_pass_hash = hash_password("Saini@321")
         
         # Ensure default admin@electroshare.com exists

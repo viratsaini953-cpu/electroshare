@@ -697,7 +697,7 @@ const getStoredOrders = () => {
     }
   };
 
-  const ADMIN_NUMBERS = ['9389047361', '9389047261'];
+  const ADMIN_NUMBERS = ['9389047361'];
 
   // 2. Authentication routines
   const handleCheckPhone = async (e) => {
@@ -1263,7 +1263,7 @@ const getStoredOrders = () => {
                 </button>
               </div>
 
-              {!isRegistered && !["9389047361", "9389047261", "9259558081"].includes(authTarget.trim()) ? (
+              {!isRegistered && !ADMIN_NUMBERS.includes(authTarget.trim()) ? (
                 !isPhoneVerified && !authTarget.includes('@') ? (
                   /* Verify OTP Form */
                   <form onSubmit={handleVerifyOtp} className="space-y-4">
