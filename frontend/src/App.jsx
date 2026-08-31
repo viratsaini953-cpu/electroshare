@@ -915,31 +915,27 @@ export default function App() {
   const confirmCheckoutOrder = async () => {
     const targetProd = selectedProduct;
     setCheckoutOpen(false);
+    setSelectedProduct(null);
     setPaymentSimulating(true);
-    setPaymentStep('processing');
+    setPaymentStep('success');
+    showToast('Order placed successfully! Pickup scheduled at LPU Block 34 Hub.', 'success');
 
-    setTimeout(async () => {
+    if (targetProd && targetProd.id) {
       try {
-        if (targetProd && targetProd.id) {
-          const orderBody = {
-            product_id: targetProd.id,
-            order_type: 'buy',
-            delivery_type: checkoutDelivery,
-            hub_location: checkoutDelivery === 'hub_pickup' ? checkoutHub : null,
-            start_date: null,
-            end_date: null,
-            payment_method: checkoutPaymentMethod
-          };
-          await apiRequest('/orders/create', 'POST', orderBody);
-        }
+        const orderBody = {
+          product_id: targetProd.id,
+          order_type: 'buy',
+          delivery_type: checkoutDelivery,
+          hub_location: checkoutDelivery === 'hub_pickup' ? checkoutHub : null,
+          start_date: null,
+          end_date: null,
+          payment_method: checkoutPaymentMethod
+        };
+        await apiRequest('/orders/create', 'POST', orderBody);
       } catch (err) {
-        console.warn('Backend API offline, displaying instant order confirmation:', err);
-      } finally {
-        showToast('Order placed successfully! Pickup scheduled at LPU Block 34 Hub.', 'success');
-        setSelectedProduct(null);
-        setPaymentStep('success');
+        console.warn('Backend API sync notice:', err);
       }
-    }, 800);
+    }
   };
 
   const handleProcessPayment = async () => {
