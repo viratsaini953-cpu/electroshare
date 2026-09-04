@@ -305,27 +305,17 @@ const FALLBACK_CATEGORIES = [
   { id: 5, name: 'Pre-built Semester Projects', description: 'IoT, Robotics, Automation Projects' }
 ];
 
-const ElectroShareLogo = ({ className = "w-9 h-9" }) => (
-  <div className={`relative flex items-center justify-center ${className} rounded-2xl bg-gradient-to-br from-brand-500 via-indigo-600 to-amber-500 p-[1.5px] shadow-lg shadow-brand-500/25 group hover:scale-105 transition-all duration-300`}>
+const ElectroShareLogo = ({ className = "w-10 h-10" }) => (
+  <div className={`relative flex items-center justify-center ${className} rounded-2xl bg-gradient-to-br from-indigo-500 via-brand-500 to-amber-500 p-[2px] shadow-xl shadow-brand-500/30 group hover:scale-105 transition-all duration-300`}>
     <div className="w-full h-full bg-dark-950 rounded-[14px] flex items-center justify-center relative overflow-hidden">
-      {/* Background ambient glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-brand-500/25 via-indigo-500/15 to-amber-500/10"></div>
+      {/* Ambient background glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/30 via-brand-500/20 to-amber-500/10"></div>
       
-      {/* High-Tech Circuit & Lightning Bolt SVG Icon */}
-      <svg className="w-5 h-5 relative z-10 drop-shadow-[0_0_8px_rgba(99,102,241,0.9)]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#es-logo-grad)" stroke="#818CF8" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-        <circle cx="5" cy="5" r="1.5" fill="#38BDF8"/>
-        <circle cx="19" cy="19" r="1.5" fill="#F59E0B"/>
-        <path d="M5 6.5V9.5C5 10.6046 5.89543 11.5 7 11.5H9" stroke="#38BDF8" strokeWidth="1.2" strokeDasharray="2 2"/>
-        <path d="M19 17.5V14.5C19 13.3954 18.1046 12.5 17 12.5H15" stroke="#F59E0B" strokeWidth="1.2" strokeDasharray="2 2"/>
-        <defs>
-          <linearGradient id="es-logo-grad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#6366F1"/>
-            <stop offset="0.5" stopColor="#38BDF8"/>
-            <stop offset="1" stopColor="#F59E0B"/>
-          </linearGradient>
-        </defs>
-      </svg>
+      {/* High-Tech ES Emblem with Lightning Bolt */}
+      <div className="relative z-10 flex items-center justify-center font-extrabold tracking-tighter text-white select-none">
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-indigo-200 to-amber-300 font-black text-sm drop-shadow-[0_0_8px_rgba(99,102,241,0.8)]">ES</span>
+        <span className="text-amber-400 ml-0.5 text-xs drop-shadow-[0_0_6px_rgba(245,158,11,0.9)]">⚡</span>
+      </div>
     </div>
   </div>
 );
