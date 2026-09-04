@@ -305,6 +305,31 @@ const FALLBACK_CATEGORIES = [
   { id: 5, name: 'Pre-built Semester Projects', description: 'IoT, Robotics, Automation Projects' }
 ];
 
+const ElectroShareLogo = ({ className = "w-9 h-9" }) => (
+  <div className={`relative flex items-center justify-center ${className} rounded-2xl bg-gradient-to-br from-brand-500 via-indigo-600 to-amber-500 p-[1.5px] shadow-lg shadow-brand-500/25 group hover:scale-105 transition-all duration-300`}>
+    <div className="w-full h-full bg-dark-950 rounded-[14px] flex items-center justify-center relative overflow-hidden">
+      {/* Background ambient glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-500/25 via-indigo-500/15 to-amber-500/10"></div>
+      
+      {/* High-Tech Circuit & Lightning Bolt SVG Icon */}
+      <svg className="w-5 h-5 relative z-10 drop-shadow-[0_0_8px_rgba(99,102,241,0.9)]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#es-logo-grad)" stroke="#818CF8" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="5" cy="5" r="1.5" fill="#38BDF8"/>
+        <circle cx="19" cy="19" r="1.5" fill="#F59E0B"/>
+        <path d="M5 6.5V9.5C5 10.6046 5.89543 11.5 7 11.5H9" stroke="#38BDF8" strokeWidth="1.2" strokeDasharray="2 2"/>
+        <path d="M19 17.5V14.5C19 13.3954 18.1046 12.5 17 12.5H15" stroke="#F59E0B" strokeWidth="1.2" strokeDasharray="2 2"/>
+        <defs>
+          <linearGradient id="es-logo-grad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#6366F1"/>
+            <stop offset="0.5" stopColor="#38BDF8"/>
+            <stop offset="1" stopColor="#F59E0B"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+);
+
 const getInitialUser = () => {
   try {
     const saved = localStorage.getItem('electroshare_user');
@@ -1200,7 +1225,9 @@ const getStoredOrders = () => {
 
         <div className="glass-panel border border-dark-800 rounded-3xl p-8 w-full max-w-md space-y-6 relative z-10 shadow-2xl">
           <div className="text-center space-y-3">
-            <span className="text-4xl bg-brand-500/10 p-4 rounded-2xl inline-block">🔑</span>
+            <div className="flex justify-center mb-1">
+              <ElectroShareLogo className="w-12 h-12" />
+            </div>
             <h2 className="text-2xl font-extrabold text-white tracking-tight">Sign In to ElectroShare</h2>
             <p className="text-xs text-dark-400 max-w-xs mx-auto">
               Hyperlocal Campus Hardware Marketplace. Enter your mobile phone number to continue.
@@ -1327,18 +1354,15 @@ const getStoredOrders = () => {
         <span className="hidden md:inline">•</span>
         <span className="hidden md:inline">🛡️ Hardware Tested at Block 34</span>
         <span className="hidden lg:inline">•</span>
-        <span className="hidden lg:inline">📦 Instant Escrow Refund Safety</span>
       </div>
 
       {/* Header */}
       <header className="glass-panel border-b border-dark-800 sticky top-0 z-30 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => { setActiveTab('explore'); setSelectedCategory(null); }}>
-            <span className="bg-brand-500 text-white p-2 rounded-xl font-bold tracking-tight shadow-lg shadow-brand-500/20">
-              ES
-            </span>
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => { setActiveTab('explore'); setSelectedCategory(null); }}>
+            <ElectroShareLogo className="w-10 h-10" />
             <div>
-              <h1 className="text-lg font-bold tracking-wider text-white flex items-center gap-1">
+              <h1 className="text-lg font-bold tracking-wider text-white flex items-center gap-1.5 group-hover:text-brand-400 transition-colors">
                 ElectroShare <Icons.Sparkles />
               </h1>
               <p className="text-[10px] text-dark-400">Hyperlocal Campus Escrow Market</p>
