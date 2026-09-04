@@ -324,6 +324,7 @@ const getInitialUser = () => {
 export default function App() {
   // Navigation & Page routing state
   const [activeTab, setActiveTab] = useState('explore'); // 'explore', 'dashboard', 'list-product', 'admin', 'combos'
+  const [dashTab, setDashTab] = useState('purchases'); // 'purchases', 'sales', 'requests'
   const [user, setUserState] = useState(getInitialUser());
   const [token, setToken] = useState(localStorage.getItem('token') || '');
 
@@ -2208,79 +2209,252 @@ const getStoredOrders = () => {
         {/* VIEW 5: USER PROFILE DASHBOARD */}
         {activeTab === 'dashboard' && (
           <div className="space-y-8">
-            <div className="glass-panel border border-dark-800 rounded-3xl p-6 flex flex-col md:flex-row justify-between items-center gap-6">
-              <div className="flex items-center gap-4">
-                <div className="bg-brand-500 text-white text-3xl font-bold w-16 h-16 rounded-2xl flex items-center justify-center">
-                  {user?.full_name?.[0]?.toUpperCase() || 'U'}
-                </div>
-                <div className="space-y-1">
-                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                    {user?.full_name || 'User'}
-                    <button
-                      onClick={() => {
-                        setProfileName(user?.full_name || '');
-                        setProfileEmail(user?.email || '');
-                        setEditProfileOpen(true);
-                      }}
-                      className="text-[10px] text-brand-400 hover:text-brand-300 font-semibold px-2 py-0.5 bg-dark-950 border border-dark-850 rounded-lg transition-colors ml-2"
-                    >
-                      ✏️ Edit Profile
-                    </button>
-                  </h2>
-                  <p className="text-xs text-dark-400 mt-0.5">{user?.email}</p>
-                  <div className="flex gap-2 items-center mt-2">
-                    <span className="text-[10px] bg-dark-900 border border-dark-800 text-brand-400 px-2 py-0.5 rounded-full capitalize font-semibold">
-                      Campus Member ({user?.role})
-                    </span>
-                    {user?.phone && (
-                      <span className="text-[10px] bg-dark-900 border border-dark-800 text-indigo-400 px-2 py-0.5 rounded-full font-semibold font-mono">
-                        📞 +91 {user?.phone}
+            
+            {/* 1. HERO USER PROFILE CARD WITH COLORFUL GRADIENT */}
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-dark-900 to-dark-950 border border-dark-800 p-6 sm:p-8 shadow-2xl">
+              {/* Background Glow Orbs */}
+              <div className="absolute -top-10 -left-10 w-48 h-48 bg-brand-500/20 rounded-full blur-3xl"></div>
+              <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl"></div>
+
+              <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="flex items-center gap-5">
+                  {/* Avatar Circle with Vibrant Gradient Border */}
+                  <div className="relative group">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-brand-500 via-indigo-600 to-amber-500 p-0.5 shadow-lg shadow-brand-500/20">
+                      <div className="w-full h-full bg-dark-950 rounded-[14px] flex items-center justify-center text-white text-2xl sm:text-3xl font-black">
+                        {user?.full_name?.[0]?.toUpperCase() || 'U'}
+                      </div>
+                    </div>
+                    <span className="absolute -bottom-1 -right-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-dark-950"></span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                        {user?.full_name || 'Campus Student'}
+                      </h2>
+                      <span className="text-[10px] bg-brand-500/10 border border-brand-500/30 text-brand-400 font-bold px-2.5 py-0.5 rounded-full capitalize">
+                        🛡️ Verified Member
                       </span>
-                    )}
+                    </div>
+
+                    <p className="text-xs text-dark-300 font-mono">
+                      📞 +91 {user?.phone || 'Not registered'} • <span className="text-dark-400">{user?.email || 'Student Account'}</span>
+                    </p>
+
+                    <div className="pt-2 flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          setProfileName(user?.full_name || '');
+                          setProfileEmail(user?.email || '');
+                          setEditProfileOpen(true);
+                        }}
+                        className="text-xs bg-dark-900 hover:bg-dark-850 border border-dark-750 text-brand-400 font-bold px-3 py-1.5 rounded-xl transition-all flex items-center gap-1 shadow-sm cursor-pointer"
+                      >
+                        ✏️ Edit Profile
+                      </button>
+
+                      <button
+                        onClick={() => setActiveTab('list-product')}
+                        className="text-xs bg-brand-500 hover:bg-brand-600 text-white font-bold px-3.5 py-1.5 rounded-xl transition-all shadow-md shadow-brand-500/20 cursor-pointer flex items-center gap-1"
+                      >
+                        ➕ Sell Hardware
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Account Quick Stats Badge */}
+                <div className="bg-dark-950/80 border border-dark-800 p-4 rounded-2xl flex items-center gap-4 w-full md:w-auto justify-around shadow-inner">
+                  <div className="text-center px-2">
+                    <span className="text-[10px] text-dark-400 font-bold uppercase tracking-wider block">Wallet Balance</span>
+                    <span className="text-lg font-black text-emerald-400">₹{user?.wallet_balance || 0}</span>
+                  </div>
+                  <div className="w-px h-8 bg-dark-800"></div>
+                  <div className="text-center px-2">
+                    <span className="text-[10px] text-dark-400 font-bold uppercase tracking-wider block">Hub Safety</span>
+                    <span className="text-xs font-extrabold text-brand-400 flex items-center gap-1 justify-center mt-1">
+                      🔒 Escrow Active
+                    </span>
                   </div>
                 </div>
               </div>
-
-
             </div>
 
-            {/* Dashboard Subtabs */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-white border-b border-dark-850 pb-2">Active Campus Transactions</h3>
-              
-              {/* Purchases Table */}
+            {/* 2. COLOR-CODED METRIC CARDS GRID */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Card 1: Purchases */}
+              <div 
+                onClick={() => setDashTab('purchases')}
+                className={`cursor-pointer rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden group ${
+                  dashTab === 'purchases'
+                    ? 'bg-gradient-to-br from-emerald-950/40 via-dark-900 to-dark-950 border-emerald-500/50 shadow-lg shadow-emerald-500/10 scale-[1.02]'
+                    : 'bg-dark-900/60 border-dark-800 hover:border-emerald-500/30'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">My Purchases</span>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-lg">
+                    🛒
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <span className="text-2xl font-black text-white">{myPurchases.length}</span>
+                  <span className="text-[11px] text-dark-400 block mt-0.5">Orders placed at hub</span>
+                </div>
+              </div>
+
+              {/* Card 2: Sales */}
+              <div 
+                onClick={() => setDashTab('sales')}
+                className={`cursor-pointer rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden group ${
+                  dashTab === 'sales'
+                    ? 'bg-gradient-to-br from-amber-950/40 via-dark-900 to-dark-950 border-amber-500/50 shadow-lg shadow-amber-500/10 scale-[1.02]'
+                    : 'bg-dark-900/60 border-dark-800 hover:border-amber-500/30'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">My Component Sales</span>
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-lg">
+                    🏷️
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <span className="text-2xl font-black text-white">{mySales.length}</span>
+                  <span className="text-[11px] text-dark-400 block mt-0.5">Items listed for sale</span>
+                </div>
+              </div>
+
+              {/* Card 3: Kit Requests */}
+              <div 
+                onClick={() => setDashTab('requests')}
+                className={`cursor-pointer rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden group ${
+                  dashTab === 'requests'
+                    ? 'bg-gradient-to-br from-indigo-950/40 via-dark-900 to-dark-950 border-indigo-500/50 shadow-lg shadow-indigo-500/10 scale-[1.02]'
+                    : 'bg-dark-900/60 border-dark-800 hover:border-indigo-500/30'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Custom Kit Requests</span>
+                  <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-lg">
+                    🛠️
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <span className="text-2xl font-black text-white">{kitRequests.length}</span>
+                  <span className="text-[11px] text-dark-400 block mt-0.5">Project builds requested</span>
+                </div>
+              </div>
+
+              {/* Card 4: Escrow Protection */}
+              <div className="rounded-2xl p-5 border bg-gradient-to-br from-brand-950/30 via-dark-900 to-dark-950 border-brand-500/30 relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-brand-400 uppercase tracking-wider">Campus Logistics</span>
+                  <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 text-lg">
+                    🚚
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <span className="text-xs font-extrabold text-white block">Block 34 Hub Pickup</span>
+                  <span className="text-[11px] text-emerald-400 font-semibold block mt-0.5">100% Quality Tested OK</span>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. INTERACTIVE DASHBOARD TABS SWITCHER */}
+            <div className="flex items-center gap-2 border-b border-dark-800 pb-3 overflow-x-auto scrollbar-none">
+              <button
+                onClick={() => setDashTab('purchases')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                  dashTab === 'purchases'
+                    ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20'
+                    : 'bg-dark-900 text-dark-300 hover:text-white border border-dark-800'
+                }`}
+              >
+                <span>🛒 My Purchases</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${dashTab === 'purchases' ? 'bg-white/20 text-white' : 'bg-dark-950 text-emerald-400'}`}>
+                  {myPurchases.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setDashTab('sales')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                  dashTab === 'sales'
+                    ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/20'
+                    : 'bg-dark-900 text-dark-300 hover:text-white border border-dark-800'
+                }`}
+              >
+                <span>🏷️ My Sales / Listings</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${dashTab === 'sales' ? 'bg-white/20 text-white' : 'bg-dark-950 text-amber-400'}`}>
+                  {mySales.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setDashTab('requests')}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                  dashTab === 'requests'
+                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                    : 'bg-dark-900 text-dark-300 hover:text-white border border-dark-800'
+                }`}
+              >
+                <span>🛠️ Kit Requests</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${dashTab === 'requests' ? 'bg-white/20 text-white' : 'bg-dark-950 text-indigo-400'}`}>
+                  {kitRequests.length}
+                </span>
+              </button>
+            </div>
+
+            {/* TAB CONTENT 1: PURCHASES */}
+            {dashTab === 'purchases' && (
               <div className="space-y-4">
-                <h4 className="text-xs font-bold text-brand-400 uppercase tracking-wider">My Purchases</h4>
-                
                 {myPurchases.length === 0 ? (
-                  <p className="text-xs text-dark-400 bg-dark-900/20 border border-dark-800 p-4 rounded-xl">You have not bought any components yet.</p>
+                  <div className="bg-dark-900/60 border border-dark-800 rounded-3xl p-8 text-center space-y-3">
+                    <span className="text-4xl inline-block">🛒</span>
+                    <h4 className="font-bold text-white text-base">No Component Purchases Yet</h4>
+                    <p className="text-xs text-dark-400 max-w-sm mx-auto">
+                      Explore verified hardware components, sensors, microcontrollers, and semester projects available on campus.
+                    </p>
+                    <button 
+                      onClick={() => setActiveTab('explore')}
+                      className="bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-md shadow-brand-500/20 cursor-pointer"
+                    >
+                      Browse Marketplace Catalog ➜
+                    </button>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {myPurchases.map((ord) => (
-                      <div key={ord.id} className="bg-dark-900/60 border border-dark-800 rounded-2xl p-5 space-y-4">
-                        <div className="flex items-start justify-between">
+                      <div key={ord.id} className="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 space-y-4 shadow-lg hover:border-emerald-500/40 transition-all">
+                        <div className="flex items-start justify-between flex-wrap gap-2">
                           <div>
-                            <span className="text-[10px] bg-dark-950 border border-dark-850 px-2.5 py-0.5 rounded text-dark-300 capitalize font-medium">
-                              Outright Purchase
-                            </span>
-                            <h4 className="font-bold text-white text-sm mt-2">{ord.product_title}</h4>
-                            <p className="text-xs text-dark-400 mt-0.5">Seller: {ord.seller_name}</p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                Verified Purchase
+                              </span>
+                              <span className="text-[10px] text-dark-400 font-mono">#{ord.id}</span>
+                            </div>
+                            <h4 className="font-bold text-white text-base mt-2">{ord.product_title}</h4>
+                            <p className="text-xs text-dark-300 mt-1">
+                              Seller: <span className="font-semibold text-brand-400">{ord.seller_name}</span> • Delivery: <span className="text-indigo-400 font-semibold">{ord.hub_location || 'LPU Block 34 Hub'}</span>
+                            </p>
                           </div>
                           <div className="text-right">
-                            <span className="text-sm font-extrabold text-white block">₹{ord.total_amount}</span>
-                            <span className="text-[10px] text-dark-400 font-semibold block capitalize">{ord.payment_status} via {ord.payment_method?.toUpperCase() || 'UPI'}</span>
+                            <span className="text-lg font-black text-emerald-400 block">₹{ord.product_price || ord.total_amount}</span>
+                            <span className="text-[10px] text-dark-400 font-semibold block capitalize">{ord.payment_status || 'Escrow Locked'}</span>
                           </div>
                         </div>
 
                         {/* Order status tracking stepper */}
                         <div className="border-t border-dark-850 pt-4">
-                          <span className="text-[10px] text-dark-500 font-bold block uppercase mb-3">Campus Logistics Progress</span>
+                          <span className="text-[10px] text-dark-400 font-bold block uppercase mb-3 tracking-wider">Logistics & Testing Stepper</span>
                           <div className="flex items-center justify-between gap-2 max-w-lg">
                             {[
                               { key: 'placed', label: 'Ordered' },
-                              { key: 'dropped_at_hub', label: 'At Campus Hub' },
-                              { key: 'verified_by_admin', label: 'Quality Checked' },
-                              { key: 'completed', label: 'Completed' }
+                              { key: 'dropped_at_hub', label: 'At Hub' },
+                              { key: 'verified_by_admin', label: 'Tested OK' },
+                              { key: 'completed', label: 'Delivered' }
                             ].map((step, idx, arr) => {
                               const orderSteps = ['placed', 'dropped_at_hub', 'verified_by_admin', 'completed'];
                               const currentIdx = orderSteps.indexOf(ord.order_status);
@@ -2290,16 +2464,16 @@ const getStoredOrders = () => {
                               return (
                                 <React.Fragment key={step.key}>
                                   <div className="flex flex-col items-center">
-                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                                      isPassed ? 'bg-brand-500 text-white' : 'bg-dark-950 text-dark-500 border border-dark-800'
+                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                                      isPassed ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/30' : 'bg-dark-950 text-dark-500 border border-dark-800'
                                     }`}>
-                                      {idx + 1}
+                                      {isPassed ? '✓' : idx + 1}
                                     </div>
-                                    <span className="text-[9px] text-dark-400 mt-1">{step.label}</span>
+                                    <span className="text-[9px] text-dark-400 font-semibold mt-1">{step.label}</span>
                                   </div>
                                   {idx < arr.length - 1 && (
-                                    <div className={`flex-1 h-0.5 ${
-                                      stepIdx < currentIdx ? 'bg-brand-500' : 'bg-dark-850'
+                                    <div className={`flex-1 h-1 rounded-full ${
+                                      stepIdx < currentIdx ? 'bg-emerald-500' : 'bg-dark-850'
                                     }`}></div>
                                   )}
                                 </React.Fragment>
@@ -2310,18 +2484,18 @@ const getStoredOrders = () => {
 
                         {/* Buyer action button: Release escrow money */}
                         {ord.order_status === 'verified_by_admin' && (
-                          <div className="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
+                          <div className="bg-emerald-500/10 border border-emerald-500/30 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
                             <div>
-                              <h5 className="text-xs font-bold text-white flex items-center gap-1">
-                                <Icons.Verified /> Component Ready & Tested!
+                              <h5 className="text-xs font-bold text-emerald-300 flex items-center gap-1">
+                                ✅ Component Tested & Ready at Hub!
                               </h5>
-                              <p className="text-[10px] text-dark-300">
-                                Campus Hub verified the hardware works. Pick it up from the Hub, inspect it, and click below to release payment to the seller.
+                              <p className="text-[10px] text-dark-300 mt-0.5">
+                                Campus Hub tested the hardware. Pick it up, test it, and click to release payment to the seller.
                               </p>
                             </div>
                             <button 
                               onClick={() => handleConfirmReceipt(ord.id)}
-                              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all whitespace-nowrap self-end md:self-auto"
+                              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all whitespace-nowrap self-end md:self-auto cursor-pointer shadow-md shadow-emerald-600/30"
                             >
                               Verify & Release Escrow Funds
                             </button>
@@ -2332,35 +2506,51 @@ const getStoredOrders = () => {
                   </div>
                 )}
               </div>
+            )}
 
-              {/* Sales Table */}
-              <div className="space-y-4 pt-4">
-                <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider">My Component Sales</h4>
-                
+            {/* TAB CONTENT 2: SALES */}
+            {dashTab === 'sales' && (
+              <div className="space-y-4">
                 {mySales.length === 0 ? (
-                  <p className="text-xs text-dark-400 bg-dark-900/20 border border-dark-800 p-4 rounded-xl">No active sales listings yet.</p>
+                  <div className="bg-dark-900/60 border border-dark-800 rounded-3xl p-8 text-center space-y-3">
+                    <span className="text-4xl inline-block">🏷️</span>
+                    <h4 className="font-bold text-white text-base">No Active Sales Listings</h4>
+                    <p className="text-xs text-dark-400 max-w-sm mx-auto">
+                      Have extra Arduino boards, sensors, motors or project kits? Sell or rent them safely to fellow students.
+                    </p>
+                    <button 
+                      onClick={() => setActiveTab('list-product')}
+                      className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-md shadow-amber-500/20 cursor-pointer"
+                    >
+                      ➕ Upload Component to Sell
+                    </button>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {mySales.map((ord) => (
-                      <div key={ord.id} className="bg-dark-900/60 border border-dark-800 rounded-2xl p-5 space-y-3">
-                        <div className="flex items-center justify-between">
+                      <div key={ord.id} className="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 space-y-3 shadow-lg hover:border-amber-500/40 transition-all">
+                        <div className="flex items-center justify-between flex-wrap gap-2">
                           <div>
-                            <h4 className="font-bold text-white text-sm">{ord.product_title}</h4>
-                            <span className="text-[10px] text-dark-400">Order: {ord.id.substring(0, 8)}...</span>
+                            <span className="text-[10px] bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                              Sale Listing
+                            </span>
+                            <h4 className="font-bold text-white text-base mt-2">{ord.product_title}</h4>
+                            <span className="text-[10px] text-dark-400 font-mono">Order ID: {ord.id}</span>
                           </div>
                           <div className="text-right">
-                            <span className="text-sm font-extrabold text-white block">₹{ord.total_amount}</span>
-                            <span className={`text-[10px] font-semibold ${
+                            <span className="text-lg font-black text-amber-400 block">₹{ord.product_price || ord.total_amount}</span>
+                            <span className={`text-[10px] font-bold ${
                               ord.order_status === 'completed' ? 'text-emerald-400' : 'text-amber-400'
                             } capitalize`}>
-                              {ord.order_status === 'placed' ? 'Drop-off Pending' : ord.order_status.replace(/_/g, ' ')}
+                              {ord.order_status === 'placed' ? 'Drop-off Pending at Hub' : ord.order_status.replace(/_/g, ' ')}
                             </span>
                           </div>
                         </div>
 
                         {ord.order_status === 'placed' && (
-                          <div className="bg-amber-500/5 border border-amber-500/20 p-3.5 rounded-xl text-[10px] text-amber-300 leading-relaxed">
-                            ⚠️ Please deliver this component to the **Block 34 Hub / Dead-drop location** for admin testing. Keep the escrow active. Once tested and handed over to the buyer, payment will be completed!
+                          <div className="bg-amber-500/10 border border-amber-500/20 p-3.5 rounded-xl text-xs text-amber-300 leading-relaxed flex items-center gap-2">
+                            <span>⚠️</span>
+                            <span>Please drop off this component at <strong>LPU Block 34 Engineering Hub</strong> for admin testing. Funds are locked safely in Escrow!</span>
                           </div>
                         )}
                       </div>
@@ -2368,60 +2558,72 @@ const getStoredOrders = () => {
                   </div>
                 )}
               </div>
+            )}
 
-              {/* Custom Kit Requests */}
-              <div className="space-y-4 pt-4 border-t border-dark-850">
-                <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider">My Custom Kit Requests</h4>
-                
+            {/* TAB CONTENT 3: KIT REQUESTS */}
+            {dashTab === 'requests' && (
+              <div className="space-y-4">
                 {kitRequests.length === 0 ? (
-                  <p className="text-xs text-dark-400 bg-dark-900/20 border border-dark-800 p-4 rounded-xl">You have not requested any custom kits yet.</p>
+                  <div className="bg-dark-900/60 border border-dark-800 rounded-3xl p-8 text-center space-y-3">
+                    <span className="text-4xl inline-block">🛠️</span>
+                    <h4 className="font-bold text-white text-base">No Custom Project Kit Requests</h4>
+                    <p className="text-xs text-dark-400 max-w-sm mx-auto">
+                      Need a custom combo kit or project parts assembled for your semester submission? Request custom project kits directly from admin.
+                    </p>
+                    <button 
+                      onClick={() => setIsRequestModalOpen(true)}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition-all shadow-md shadow-indigo-600/20 cursor-pointer"
+                    >
+                      🛠️ Request Custom Kit
+                    </button>
+                  </div>
                 ) : (
                   <div className="space-y-4">
                     {kitRequests.map((req) => (
-                      <div key={req.id} className="bg-dark-900/60 border border-dark-800 rounded-2xl p-5 space-y-3">
-                        <div className="flex items-start justify-between gap-4">
+                      <div key={req.id} className="bg-dark-900/80 border border-dark-800 rounded-2xl p-5 space-y-3 shadow-lg hover:border-indigo-500/40 transition-all">
+                        <div className="flex items-start justify-between gap-4 flex-wrap">
                           <div>
-                            <h4 className="font-bold text-white text-sm">🛠️ {req.project_name}</h4>
+                            <h4 className="font-bold text-white text-base">🛠️ {req.project_name}</h4>
                             <span className="text-[10px] text-dark-400">Requested on: {new Date(req.created_at).toLocaleDateString()}</span>
                           </div>
                           <div>
                             {req.status === 'pending' && (
-                              <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                              <span className="bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
                                 ⏳ Pending Review
                               </span>
                             )}
                             {req.status === 'assembling' && (
-                              <span className="bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap animate-pulse">
+                              <span className="bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap animate-pulse">
                                 ⚙️ Assembling at Hub
                               </span>
                             )}
                             {req.status === 'ready' && (
-                              <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                              <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
                                 ✅ Ready at Hub
                               </span>
                             )}
                             {req.status === 'cancelled' && (
-                              <span className="bg-dark-800 border border-dark-700 text-dark-400 text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap">
+                              <span className="bg-dark-800 border border-dark-700 text-dark-400 text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
                                 ❌ Cancelled
                               </span>
                             )}
                           </div>
                         </div>
 
-                        <div className="space-y-2 border-t border-dark-850 pt-2 text-xs">
+                        <div className="space-y-2 border-t border-dark-850 pt-3 text-xs">
                           <div>
-                            <span className="text-[10px] text-dark-450 font-bold block uppercase mb-1">Required Components</span>
-                            <div className="bg-dark-950 p-2.5 rounded-lg text-dark-300 font-mono text-[11px] whitespace-pre-wrap">
+                            <span className="text-[10px] text-dark-400 font-bold block uppercase mb-1">Required Components</span>
+                            <div className="bg-dark-950 p-3 rounded-xl text-dark-200 font-mono text-[11px] whitespace-pre-wrap border border-dark-800">
                               {req.components}
                             </div>
                           </div>
                           {req.target_budget && (
-                            <p className="text-[11px] text-dark-350">
-                              <span className="font-semibold text-dark-400">Target Budget:</span> ₹{req.target_budget}
+                            <p className="text-xs text-dark-300">
+                              <span className="font-semibold text-dark-400">Target Budget:</span> <span className="font-bold text-emerald-400">₹{req.target_budget}</span>
                             </p>
                           )}
                           {req.notes && (
-                            <p className="text-[11px] text-dark-350">
+                            <p className="text-xs text-dark-300">
                               <span className="font-semibold text-dark-400">Notes:</span> {req.notes}
                             </p>
                           )}
@@ -2431,8 +2633,8 @@ const getStoredOrders = () => {
                   </div>
                 )}
               </div>
+            )}
 
-            </div>
           </div>
         )}
 
