@@ -306,17 +306,32 @@ const FALLBACK_CATEGORIES = [
 ];
 
 const ElectroShareLogo = ({ className = "w-10 h-10" }) => (
-  <div className={`relative flex items-center justify-center ${className} rounded-2xl bg-gradient-to-br from-indigo-500 via-brand-500 to-amber-500 p-[2px] shadow-xl shadow-brand-500/30 group hover:scale-105 transition-all duration-300`}>
-    <div className="w-full h-full bg-dark-950 rounded-[14px] flex items-center justify-center relative overflow-hidden">
-      {/* Ambient background glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/30 via-brand-500/20 to-amber-500/10"></div>
+  <div className={`relative flex items-center justify-center ${className} rounded-2xl bg-gradient-to-br from-[#fd7100] via-[#ff5500] to-[#e04800] p-1.5 shadow-md shadow-orange-500/25 group hover:scale-105 transition-all duration-300 select-none`}>
+    {/* High-Tech IC Microchip + Lightning Bolt Vector SVG Logo */}
+    <svg className="w-full h-full text-white drop-shadow-sm" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* IC Chip Outer Frame */}
+      <rect x="6" y="6" width="20" height="20" rx="5" fill="white" fillOpacity="0.25" stroke="white" strokeWidth="1.8"/>
       
-      {/* High-Tech ES Emblem with Lightning Bolt */}
-      <div className="relative z-10 flex items-center justify-center font-extrabold tracking-tighter text-white select-none">
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-indigo-200 to-amber-300 font-black text-sm drop-shadow-[0_0_8px_rgba(99,102,241,0.8)]">ES</span>
-        <span className="text-amber-400 ml-0.5 text-xs drop-shadow-[0_0_6px_rgba(245,158,11,0.9)]">⚡</span>
-      </div>
-    </div>
+      {/* IC Chip Connector Pins (Top, Bottom, Left, Right) */}
+      <line x1="10" y1="3" x2="10" y2="6" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="16" y1="3" x2="16" y2="6" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="22" y1="3" x2="22" y2="6" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      
+      <line x1="10" y1="26" x2="10" y2="29" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="16" y1="26" x2="16" y2="29" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="22" y1="26" x2="22" y2="29" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      
+      <line x1="3" y1="10" x2="6" y2="10" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="3" y1="16" x2="6" y2="16" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="3" y1="22" x2="6" y2="22" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      
+      <line x1="26" y1="10" x2="29" y2="10" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="26" y1="16" x2="29" y2="16" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="26" y1="22" x2="29" y2="22" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
+
+      {/* Central Solid White Lightning Bolt Icon */}
+      <path d="M17.5 7L9.5 17H15.5L14 25L22 15H16L17.5 7Z" fill="white"/>
+    </svg>
   </div>
 );
 
