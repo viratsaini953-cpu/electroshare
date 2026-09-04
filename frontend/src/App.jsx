@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiRequest } from './api';
+import logoImg from './assets/logo.png';
 
 // Helper functions for handling single or multiple images stored in a TEXT column
 const getImages = (imageStr) => {
@@ -306,32 +307,8 @@ const FALLBACK_CATEGORIES = [
 ];
 
 const ElectroShareLogo = ({ className = "w-10 h-10" }) => (
-  <div className={`relative flex items-center justify-center ${className} rounded-2xl bg-gradient-to-br from-[#fd7100] via-[#ff5500] to-[#e04800] p-1.5 shadow-md shadow-orange-500/25 group hover:scale-105 transition-all duration-300 select-none`}>
-    {/* High-Tech IC Microchip + Lightning Bolt Vector SVG Logo */}
-    <svg className="w-full h-full text-white drop-shadow-sm" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* IC Chip Outer Frame */}
-      <rect x="6" y="6" width="20" height="20" rx="5" fill="white" fillOpacity="0.25" stroke="white" strokeWidth="1.8"/>
-      
-      {/* IC Chip Connector Pins (Top, Bottom, Left, Right) */}
-      <line x1="10" y1="3" x2="10" y2="6" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      <line x1="16" y1="3" x2="16" y2="6" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      <line x1="22" y1="3" x2="22" y2="6" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      
-      <line x1="10" y1="26" x2="10" y2="29" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      <line x1="16" y1="26" x2="16" y2="29" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      <line x1="22" y1="26" x2="22" y2="29" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      
-      <line x1="3" y1="10" x2="6" y2="10" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      <line x1="3" y1="16" x2="6" y2="16" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      <line x1="3" y1="22" x2="6" y2="22" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      
-      <line x1="26" y1="10" x2="29" y2="10" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      <line x1="26" y1="16" x2="29" y2="16" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-      <line x1="26" y1="22" x2="29" y2="22" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-
-      {/* Central Solid White Lightning Bolt Icon */}
-      <path d="M17.5 7L9.5 17H15.5L14 25L22 15H16L17.5 7Z" fill="white"/>
-    </svg>
+  <div className={`relative flex items-center justify-center ${className} rounded-2xl overflow-hidden shadow-sm group hover:scale-105 transition-all duration-300 select-none bg-white p-0.5 border border-slate-200`}>
+    <img src={logoImg} alt="ElectroShare Logo" className="w-full h-full object-contain rounded-xl" />
   </div>
 );
 
